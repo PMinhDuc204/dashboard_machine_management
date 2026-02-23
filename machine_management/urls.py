@@ -25,3 +25,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('authentication/', include('authentication.urls')),
 ]
+
+handler404 = 'machine_management.views.custom_404'

@@ -34,3 +34,10 @@ class Machine_Logs(models.Model):
     
     def __str__(self):
         return self.code_product
+
+class Machine_Logs_Images(models.Model):
+    image_url = models.ImageField(upload_to='machine_logs_images')
+    machine_log = models.ForeignKey(Machine_Logs, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.machine_log.code_product

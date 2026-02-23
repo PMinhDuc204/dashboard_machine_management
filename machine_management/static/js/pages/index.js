@@ -39,9 +39,9 @@ function initC3Chart() {
                     },
                     names: {
                         // name of each serie
-                        'data1': 'Revenue',
-                        'data2': 'Returns',
-                        'data3': 'Queries',
+                        'data1': 'Total Products',
+                        'data2': 'Products Pass ',
+                        'data3': 'Products Fail',
                     }
                 },
                 axis: {
