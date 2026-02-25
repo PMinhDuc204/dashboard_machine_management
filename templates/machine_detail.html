@@ -430,7 +430,7 @@
         <button class="btn-menu ls-toggle-btn" type="button">
           <i class="zmdi zmdi-menu"></i>
         </button>
-        <a href="index.html"
+        <a href="{% url 'home' %}"
           ><img
             src="{% static 'images/logo.svg' %}"
             width="25"
@@ -575,7 +575,7 @@
                 <div class="col-lg-7 col-md-6 col-sm-12">
                     <h2>Product Detail</h2>
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html"><i class="zmdi zmdi-home"></i> Aero</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="zmdi zmdi-home"></i> Aero</a></li>
                         <li class="breadcrumb-item">eCommerce</li>
                         <li class="breadcrumb-item active">Product Detail</li>
                     </ul>
