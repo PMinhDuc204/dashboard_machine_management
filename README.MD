@@ -36,7 +36,7 @@
     ```bash
     python manage.py makemigrations
     python manage.py migrate
-    python manage.py makesuperuser
+    python manage.py createsuperuser
     username: admin
     email: admin@admin.com
     password: 123456

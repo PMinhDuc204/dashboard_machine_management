@@ -14,7 +14,7 @@ Usage:
 import random
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from accounts.models import Profile, Machine, Machine_Logs
+from accounts.models import Profile, Machine, Machine_Logs, Machine_Logs_Images
 
 # ---------------------------------------------------------------------------
 # Sample data
@@ -145,6 +145,9 @@ class Command(BaseCommand):
 
     def _flush_data(self):
         self._print_section("Flushing existing data ...")
+        from accounts.models import Machine_Logs_Images
+        Machine_Logs_Images.objects.all().delete()
+        self.stdout.write("  [OK] Machine_Logs_Images deleted")
         Machine_Logs.objects.all().delete()
         self.stdout.write("  [OK] Machine_Logs deleted")
         Machine.objects.all().delete()
@@ -253,7 +256,24 @@ class Command(BaseCommand):
                     )
                 )
 
-        Machine_Logs.objects.bulk_create(log_objects)
+        created_logs = Machine_Logs.objects.bulk_create(log_objects)
+        
+        # Create Images for some logs
+        image_objects = []
+        # get logs from DB since bulk_create doesn't always return objects with IDs
+        # Instead, fetch all logs for these machines that don't have images (or just fetch the ones we just created if possible)
+        # To make it simple, we can iterate through the actually created logs from db.
+        db_logs = Machine_Logs.objects.filter(machine__in=machines).order_by('-id')[:len(created_logs)]
+        for log in db_logs:
+            if random.random() > 0.5: # 50% chance to have an image
+                image_objects.append(
+                    Machine_Logs_Images(
+                        machine_log=log,
+                        image_url='machine_logs_images/sample_image.jpg'
+                    )
+                )
+        Machine_Logs_Images.objects.bulk_create(image_objects)
+        
         return log_objects
 
     # ------------------------------------------------------------------
