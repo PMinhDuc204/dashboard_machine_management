@@ -15,5 +15,9 @@ def home(request):
 def machine_detail(request):
     return render(request, "machine_detail.html")
 
+@login_required(login_url="/authentication/login")
+def plc_control(request):
+    return render(request, "plc_control.html")
+
 def custom_404(request, exception):
     return render(request, 'page_404.html', status=404)

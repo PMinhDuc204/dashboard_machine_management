@@ -26,6 +26,7 @@ def page_not_found(request, *args, **kwargs):
 urlpatterns = [
     path('', views.home, name='home'),
     path('machine-detail/', views.machine_detail, name='machine-detail'),
+    path('plc-control/', views.plc_control, name='plc-control'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('authentication/', include('authentication.urls')),
