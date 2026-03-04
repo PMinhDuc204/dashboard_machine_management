@@ -432,7 +432,7 @@
         </button>
         <a href="{% url 'home' %}"
           ><img
-            src="{% static 'images/logo.svg' %}"
+            src="{% static 'images/logoutc.png' %}"
             width="25"
             alt="Aero"
           /><span class="m-l-10">Aero</span></a
@@ -468,7 +468,7 @@
             </ul>
           </li>
            
-            <div class="progress-container progress-primary m-t-10">
+            {% comment %} <div class="progress-container progress-primary m-t-10">
               <span class="progress-badge">Traffic this Month</span>
               <div class="progress">
                 <div
@@ -497,7 +497,7 @@
                   <span class="progress-value">86%</span>
                 </div>
               </div>
-            </div>
+            </div> {% endcomment %}
           </li>
         </ul>
       </div>
@@ -640,7 +640,7 @@
               <div class="card widget_2 big_icon email">
                 <div class="body">
                   <h6>Products Pass</h6>
-                  <h2>96 <small class="info">of 100</small></h2>
+                  <h2>96 <small class="info">of {{ max_id }}</small></h2>
                   <small>Total Products Pass</small>
                   <div class="progress">
                     <div
@@ -659,7 +659,7 @@
               <div class="card widget_2 big_icon domains">
                 <div class="body">
                   <h6>Product Fail</h6>
-                  <h2>4 <small class="info">of 100</small></h2>
+                  <h2>4 <small class="info">of {{ max_id }}</small></h2>
                   <small>Total Products Fail</small>
                   <div class="progress">
                     <div
