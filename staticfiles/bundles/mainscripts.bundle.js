@@ -404,14 +404,3 @@ var edge = "Microsoft Edge",
         $(this).attr("href", a);
       }));
   }));
-var Tawk_API = Tawk_API || {},
-  Tawk_LoadStart = new Date();
-!(function () {
-  var a = document.createElement("script"),
-    b = document.getElementsByTagName("script")[0];
-  ((a.async = !0),
-    (a.src = "https://embed.tawk.to/59f5afbbbb0c3f433d4c5c4c/default"),
-    (a.charset = "UTF-8"),
-    a.setAttribute("crossorigin", "*"),
-    b.parentNode.insertBefore(a, b));
-})();
