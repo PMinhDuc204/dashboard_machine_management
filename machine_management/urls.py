@@ -31,6 +31,12 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('authentication/', include('authentication.urls')),
     
+    # PLC API endpoints
+    path('api/plc/connect/', views.api_connect_plc, name='api_connect_plc'),
+    path('api/plc/status/', views.api_plc_status, name='api_plc_status'),
+    path('api/plc/command/', views.api_plc_command, name='api_plc_command'),
+    path('api/plc/write_params/', views.api_plc_write_params, name='api_plc_write_params'),
+    
     re_path(r'^.*$', page_not_found, name='page_not_found'),
 ]
 
