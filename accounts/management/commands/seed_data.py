@@ -14,7 +14,7 @@ Usage:
 import random
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from accounts.models import Profile, Machine, Machine_Logs, Machine_Logs_Images
+from accounts.models import Profile, Machine, Machine_Logs, Machine_Logs_Images, ErrorType
 
 # ---------------------------------------------------------------------------
 # Sample data
@@ -51,21 +51,12 @@ MACHINE_DESCRIPTIONS = [
 ]
 
 ERROR_TYPES = [
-    "Overheating",
-    "Sensor Malfunction",
-    "Motor Failure",
-    "Power Fluctuation",
-    "Lubrication Failure",
-    "Vibration Abnormal",
-    "Communication Timeout",
-    "Calibration Error",
-    "Pressure Drop",
-    "Spindle Jam",
-    "Belt Slippage",
-    "Emergency Stop Triggered",
-    "Cooling System Failure",
-    "PLC Error",
-    "Encoder Fault",
+    ErrorType.MISSING_COMPONENT,
+    ErrorType.MISPLACED_COMPONENT,
+    ErrorType.SOLDERING_DEFECT,
+    ErrorType.MISSING_PIN,
+    ErrorType.DEFECTIVE_LABEL,
+    ErrorType.WRONG_SHAPE_OR_POLARITY,
 ]
 
 PRODUCT_CODE_PREFIXES = ["SP", "LK", "MH", "MP", "CT", "KT"]

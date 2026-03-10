@@ -25,9 +25,21 @@ class Machine(models.Model):
     def __str__(self):
         return self.name
 
+class ErrorType(models.TextChoices):
+    MISSING_COMPONENT = 'missing_component', 'Missing Component'
+    MISPLACED_COMPONENT = 'misplaced_component', 'Misplaced Component'
+    SOLDERING_DEFECT = 'soldering_defect', 'Soldering Defect'
+    MISSING_PIN = 'missing_pin', 'Missing Pin'
+    DEFECTIVE_LABEL = 'defective_label', 'Misaligned/Missing Label'
+    WRONG_SHAPE_OR_POLARITY = 'wrong_shape_or_polarity', 'Wrong Shape/Polarity'
+
 class Machine_Logs(models.Model):
     code_product = models.CharField(max_length=100)
-    type_error = models.CharField(max_length=100)
+    type_error = models.CharField(
+        max_length=100,
+        choices=ErrorType.choices,
+        default=ErrorType.MISSING_COMPONENT
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)

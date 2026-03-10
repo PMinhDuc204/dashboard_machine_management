@@ -36,6 +36,11 @@ urlpatterns = [
     path('api/plc/status/', views.api_plc_status, name='api_plc_status'),
     path('api/plc/command/', views.api_plc_command, name='api_plc_command'),
     path('api/plc/write_params/', views.api_plc_write_params, name='api_plc_write_params'),
+    path('api/plc/read_device/', views.api_plc_read_device, name='api_plc_read_device'),
+
+    # Stats API endpoints
+    path('api/stats/errors/', views.api_error_stats, name='api_error_stats'),
+    path('api/stats/products/', views.api_product_stats, name='api_product_stats'),
     
     re_path(r'^.*$', page_not_found, name='page_not_found'),
 ]

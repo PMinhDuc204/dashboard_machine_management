@@ -31,6 +31,74 @@
       href="{% static 'plugins/morrisjs/morris.min.css' %}"
     />
     <link rel="stylesheet" href="{% static 'css/style.min.css' %}" />
+    <style>
+      /* === LED Indicator === */
+      .led-indicator {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: middle;
+        box-shadow: 0 0 6px 2px rgba(0,0,0,0.15);
+        transition: background 0.3s, box-shadow 0.3s;
+      }
+      .led-on {
+        background: #00e676;
+        box-shadow: 0 0 10px 4px #00e676aa;
+        animation: blink-led 1s infinite;
+      }
+      .led-off {
+        background: #ef5350;
+        box-shadow: 0 0 6px 2px #ef535055;
+      }
+      .led-idle {
+        background: #42a5f5;
+        box-shadow: 0 0 6px 2px #42a5f555;
+      }
+      .led-done {
+        background: #00e676;
+        box-shadow: 0 0 12px 5px #00e676cc;
+      }
+      .led-pulse-origin {
+        background: #ff9800;
+        box-shadow: 0 0 10px 4px #ff9800aa;
+        animation: blink-led 0.3s infinite;
+      }
+      @keyframes blink-led {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      /* === X100 Control Card === */
+      .x100-card {
+        border: 2px solid #1e88e5;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0d1b3e 0%, #1a237e 100%);
+        color: #fff;
+      }
+      .x100-card .header {
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        padding: 12px 20px;
+      }
+      .x100-card .header h2 {
+        color: #fff;
+        font-size: 1rem;
+        margin: 0;
+      }
+      .x100-card .body {
+        padding: 16px 20px;
+      }
+      .x100-status-box {
+        background: rgba(0,0,0,0.35);
+        border-radius: 6px;
+        padding: 10px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        font-size: 1.1em;
+      }
+    </style>
   </head>
 
   <body class="theme-blush">
@@ -462,6 +530,7 @@
             >
             <ul class="ml-menu">
               <li><a href="{% url 'user_list' %}">User</a></li>
+              <li><a href="{% url 'list_pcb' %}">List PCB</a></li>
               <li><a href="{% url 'machine-detail' %}">Machine</a></li>
               <li class="active"><a href="{% url 'plc-control' %}">PLC Control</a></li>
               <li><a href="events.html">Calendar</a></li>
@@ -589,7 +658,106 @@
         </div>
 
         <div class="container-fluid">
-            
+
+            <!-- ===== CARD ĐIỀU KHIỂN X100 NỔI BẬT ===== -->
+            <div class="row clearfix">
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card x100-card">
+                  <div class="header">
+                    <h2>
+                      <i class="zmdi zmdi-power" style="color:#64b5f6;"></i>
+                      <strong style="color:#fff;"> Điều Khiển Origin</strong>
+                      <small style="color:#90caf9; font-size:0.75em; margin-left:8px;">M200 — Internal Coil</small>
+                    </h2>
+                  </div>
+                  <div class="body">
+                    <div class="x100-status-box">
+                      <span class="led-indicator led-off" id="led-x100"></span>
+                      <span>Trạng thái:&nbsp;</span>
+                      <span id="x100-status-text" class="font-weight-bold text-muted">CHƯA KẾT NỐI</span>
+                      <span class="ml-auto" style="font-size:0.8em; color:#90caf9;">Địa chỉ: <strong>M200</strong></span>
+                    </div>
+                    <button id="btn-x100-toggle"
+                            class="btn btn-primary btn-lg btn-block waves-effect mt-2"
+                            onclick="toggleX100()">
+                      <i class="zmdi zmdi-home"></i> THỰC HIỆN ORIGIN (M200)
+                    </button>
+                    <div class="text-center mt-2" style="font-size:0.8em; color:#90caf9;">
+                      <i class="zmdi zmdi-info-outline"></i>
+                      Nhấn để SET M200=1 — PLC thực hiện hành trình về gốc
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-8 col-md-6 col-sm-12">
+                <div class="card" style="height: calc(100% - 20px);">
+                  <div class="header">
+                    <h2><strong>Hướng dẫn sử dụng X100</strong></h2>
+                  </div>
+                  <div class="body">
+                    <table class="table table-sm">
+                      <tbody>
+                        <tr class="table-info">
+                          <td colspan="2" class="text-center">
+                            <strong>⚡ Origin = SET M200=1 (Internal Coil)</strong><br>
+                            <small class="text-muted">M address ghi được trực tiếp qua MC Protocol</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code style="font-size:1.1em;">SET M200=1</code></td>
+                          <td><strong>[Bước 1]</strong> Ghi M200=1 + đọc lại readback ngay</td>
+                        </tr>
+                        <tr>
+                          <td><code style="font-size:1.1em; color:#00e676;">Readback OK ✅</code></td>
+                          <td><strong>[Bước 2]</strong> Đọc lại sau 300ms để xác nhận PLC scan cycle</td>
+                        </tr>
+                        <tr>
+                          <td><i class="zmdi zmdi-info text-info"></i> <strong>Debug Log</strong></td>
+                          <td>Xem panel Debug bên dưới — hiển thị giá trị thực tế từ PLC</td>
+                        </tr>
+                        <tr>
+                          <td><i class="zmdi zmdi-alert-circle text-warning"></i> <strong>Lưu ý</strong></td>
+                          <td>Phải <strong>kết nối PLC</strong> trước. M200 ON = Origin đang chạy thực tế.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== PLC DEBUG LOG PANEL ===== -->
+            <div class="row clearfix">
+              <div class="col-lg-12">
+                <div class="card" style="background:#1a1a2e; border:1px solid #333; border-radius:8px;">
+                  <div class="header" style="background:transparent; border-bottom:1px solid #333; padding:10px 16px; display:flex; align-items:center; justify-content:space-between;">
+                    <h2 style="color:#90caf9; margin:0; font-size:0.95rem;">
+                      <i class="zmdi zmdi-bug" style="margin-right:6px;"></i>
+                      <strong>PLC Debug Log</strong>
+                      <small style="color:#666; font-size:0.75em; margin-left:8px;">Giao tiếp thực tế với PLC — Read-back verification</small>
+                    </h2>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearDebugLog()" style="font-size:0.75em; padding:2px 10px;">
+                      <i class="zmdi zmdi-delete"></i> Xóa log
+                    </button>
+                  </div>
+                  <div class="body" style="padding:10px 16px;">
+                    <div id="plc-debug-log"
+                         style="background:#0d0d1a; border-radius:4px; padding:10px; min-height:80px; max-height:220px; overflow-y:auto; font-family:'Courier New',monospace; font-size:0.82em; line-height:1.6;">
+                      <span style="color:#555;">// Chưa có log — nhấn nút ORIGIN (M200) để bắt đầu debug...</span>
+                    </div>
+                    <div class="mt-2" style="font-size:0.78em; color:#555;">
+                      <span style="color:#00e676; margin-right:12px;">✅ OK — Lệnh thành công</span>
+                      <span style="color:#ef5350; margin-right:12px;">❌ ERR — Lỗi</span>
+                      <span style="color:#ff9800; margin-right:12px;">⚠️ WARN — Cảnh báo</span>
+                      <span style="color:#ce93d8; margin-right:12px;">🔍 READBACK — Giá trị đọc lại từ PLC</span>
+                      <span style="color:#42a5f5;">ℹ️ INFO — Thông tin</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Connection Status row -->
             <div class="row clearfix">
                 <div class="col-lg-12">
@@ -715,7 +883,10 @@
                         <div class="body">
                             <!-- Basic actions -->
                             <h6 class="mb-3">Basic Inputs/Outputs</h6>
-                            <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X100')">Origin <br><small>X100</small></button>
+                            <button class="btn btn-outline-primary m-1" onclick="toggleX100()" id="btn-x100-inline" style="min-width:90px;">
+                              <span class="led-indicator" id="led-x100-inline" style="width:10px;height:10px;margin-right:4px;background:#ef5350;"></span>
+                              Origin <br><small>M200</small>
+                            </button>
                             <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X150')">Trigger <br><small>X150</small></button>
                             <button class="btn btn-warning text-white m-1" onclick="sendPlcCommand('X200')">POWER ON <br><small>X200</small></button>
                             <button class="btn btn-success m-1" onclick="sendPlcCommand('X151')">Light ON <br><small>X151</small></button>
@@ -728,7 +899,7 @@
                             <h6 class="mt-4 mb-3">Servo Control</h6>
                             <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X111')">Origin Servo <br><small>X111</small></button>
                             <button class="btn btn-success m-1" onclick="sendPlcCommand('X110')">Servo ON <br><small>X110</small></button>
-                            <button class="btn btn-outline-secondary m-1" onclick="sendPlcCommand('X117')">Servo OFF <br><small>X117</small></button>
+                            <button class="btn btn-outline-secondary m-1" onclick="sendPlcCommand('M1001')">Servo OFF <br><small>M1001</small></button>
                             <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X112')">Run 1 Step <br><small>X112</small></button>
                             <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X306')">Discharge <br><small>X306</small></button>
                             
