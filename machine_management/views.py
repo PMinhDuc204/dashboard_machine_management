@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from accounts.models import Machine_Logs, ErrorType
+from accounts.models import Machine_Logs, ErrorType, ResultType
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncMinute, TruncHour, TruncDay
@@ -289,15 +289,13 @@ def api_product_stats(request):
     now = timezone.now()
     start_time = now - timedelta(hours=10)
 
-    # Tổng sản phẩm toàn hệ thống (dùng max id làm tổng tích lũy)
-    total_all = Machine_Logs.objects.aggregate(max_id=Max('id'))['max_id'] or 0
-
-    # Thống kê lỗi
-    total_errors = Machine_Logs.objects.count()
-    total_pass = max(0, total_all - total_errors)
+    # Tính toán thống kê tổng thể từ database
+    total_pass = Machine_Logs.objects.filter(result=ResultType.PASS).count()
+    total_errors = Machine_Logs.objects.filter(result=ResultType.FAIL).count()
+    total_all = total_pass + total_errors
 
     # Trong 10h gần nhất
-    errors_10h = Machine_Logs.objects.filter(created__gte=start_time).count()
+    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, result=ResultType.FAIL).count()
     
     return JsonResponse({
         'total': total_all,
@@ -305,4 +303,36 @@ def api_product_stats(request):
         'pass': total_pass,
         'period_label': '10h gần nhất',
         'period_errors': errors_10h,
+    })
+
+@login_required(login_url="/authentication/login")
+def api_pass_stats(request):
+    """API trả về thống kê SP đạt theo 10 giờ gần nhất, phân bổ theo giờ."""
+    now = timezone.now()
+    start_time = now - timedelta(hours=9)
+    start_time = start_time.replace(minute=0, second=0, microsecond=0)
+    
+    # Lấy tất cả logs PASS trong 10 giờ gần nhất
+    pass_logs = Machine_Logs.objects.filter(
+        created__gte=start_time,
+        result=ResultType.PASS
+    )
+    
+    # Nhóm theo giờ
+    grouped = pass_logs.annotate(
+        hour=TruncHour('created')
+    ).values('hour').annotate(count=Count('id')).order_by('hour')
+    
+    hour_map = {item['hour'].strftime('%H:00'): item['count'] for item in grouped}
+    
+    labels = []
+    data = []
+    for i in range(9, -1, -1):
+        h = now - timedelta(hours=i)
+        h_str = h.strftime('%H:00')
+        labels.append(h_str)
+        data.append(hour_map.get(h_str, 0))
+    
+    return JsonResponse({
+        'trend': {'labels': labels, 'data': data}
     })

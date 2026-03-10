@@ -664,6 +664,31 @@
             </div>
           </div>
           <div class="row clearfix">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="header">
+                  <h2>
+                    <strong><i class="zmdi zmdi-check-circle"></i> Biểu Đồ Sản Phẩm Đạt</strong>
+                    <span style="font-size:13px;font-weight:normal;color:#999;"> – 10 giờ gần nhất</span>
+                  </h2>
+                  <ul class="header-dropdown">
+                    <li>
+                      <span id="chart-pass-update-time" style="font-size:12px;color:#aaa;line-height:40px;margin-right:10px;"></span>
+                    </li>
+                    <li>
+                      <button id="btn-refresh-pass-chart" class="btn btn-sm btn-outline-primary" style="margin-top:5px;">
+                        <i class="zmdi zmdi-refresh"></i> Làm mới
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="body">
+                  <div id="chart-realtime-pass-10h" style="height:250px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row clearfix">
             <div class="col-lg-3 col-md-6 col-sm-6">
               <div class="card mcard_4">
                 <div class="body">
@@ -1033,6 +1058,7 @@
     <script>
     // ====== REALTIME DASHBOARD: 10 giờ gần nhất ======
     var realtimeChart = null;
+    var realtimePassChart = null;
 
     function updateProductStats() {
       fetch('/api/stats/products/')
@@ -1113,20 +1139,85 @@
         .catch(function(err) { console.warn('Chart API error:', err); });
     }
 
+    function updatePassChart() {
+      fetch('/api/stats/pass/')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          var labels = data.trend.labels;
+          var values = data.trend.data;
+
+          if (realtimePassChart) {
+            // Cập nhật dữ liệu chart hiện có
+            realtimePassChart.load({
+              columns: [
+                ['x'].concat(labels),
+                ['Số SP đạt'].concat(values)
+              ]
+            });
+          } else {
+            // Tạo chart mới
+            realtimePassChart = c3.generate({
+              bindto: '#chart-realtime-pass-10h',
+              data: {
+                x: 'x',
+                columns: [
+                  ['x'].concat(labels),
+                  ['Số SP đạt'].concat(values)
+                ],
+                types: { 'Số SP đạt': 'bar' },
+                colors: { 'Số SP đạt': '#4CAF50' }
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  tick: { rotate: -30, multiline: false }
+                },
+                y: {
+                  label: { text: 'Số SP đạt', position: 'outer-middle' },
+                  min: 0
+                }
+              },
+              bar: { width: { ratio: 0.6 } },
+              grid: { y: { show: true } },
+              tooltip: {
+                format: {
+                  value: function(value) { return value + ' SP đạt'; }
+                }
+              }
+            });
+          }
+
+          // Cập nhật thời gian refresh
+          var now = new Date();
+          var hh = String(now.getHours()).padStart(2,'0');
+          var mm = String(now.getMinutes()).padStart(2,'0');
+          var ss = String(now.getSeconds()).padStart(2,'0');
+          document.getElementById('chart-pass-update-time').textContent = 'Cập nhật: ' + hh + ':' + mm + ':' + ss;
+        })
+        .catch(function(err) { console.warn('Pass Chart API error:', err); });
+    }
+
     // Nút làm mới thủ công
     document.getElementById('btn-refresh-chart').addEventListener('click', function() {
       updateChart();
       updateProductStats();
     });
 
+    document.getElementById('btn-refresh-pass-chart').addEventListener('click', function() {
+      updatePassChart();
+      updateProductStats();
+    });
+
     // Khởi tạo khi trang load
     updateProductStats();
     updateChart();
+    updatePassChart();
 
     // Auto-refresh mỗi 30 giây
     setInterval(function() {
       updateProductStats();
       updateChart();
+      updatePassChart();
     }, 30000);
     </script>
   </body>

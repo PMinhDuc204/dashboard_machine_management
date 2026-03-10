@@ -418,10 +418,21 @@ function saveConfiguration() {
 // ======= Global error handler =======
 // Bắt tất cả unhandled promise rejection để tránh lỗi "Uncaught (in promise)"
 window.addEventListener('unhandledrejection', function(event) {
-    // Bỏ qua lỗi từ extension của browser (onboarding.js, v.v.)
-    if (event.reason && event.reason.stack &&
-        (event.reason.stack.includes('onboarding') ||
-         event.reason.stack.includes('extension'))) {
+    // Bỏ qua lỗi từ extension của browser (onboarding.js, rejectFunction, v.v.)
+    if (!event.reason) {
+        // Nếu reason là undefined/null, có thể từ extension
+        event.preventDefault();
+        return;
+    }
+    
+    var reasonStr = (event.reason.stack || String(event.reason)).toLowerCase();
+    // Lọc lỗi từ extension
+    if (reasonStr.includes('onboarding') || 
+        reasonStr.includes('extension') ||
+        reasonStr.includes('rejectfunction') ||
+        reasonStr.includes('chrome-extension') ||
+        event.reason.toString().includes('chrome-extension')) {
+        event.preventDefault(); // Ngăn lỗi hiện ra console
         return;
     }
     console.warn('[PLC] Unhandled Promise Rejection:', event.reason);

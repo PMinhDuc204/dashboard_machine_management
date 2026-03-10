@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count
 
 def user_list(request):
     users = User.objects.all()
@@ -10,21 +13,18 @@ def user_list(request):
     }
     return render(request, 'user_list.html', context)
 
-from django.db.models import Count
-
 def list_pcb(request):
-    # Lấy máy đầu tiên có trong database
-    machine = Machine.objects.first()
+    # Lấy logs từ 10 giờ gần nhất
+    now = timezone.now()
+    start_time = now - timedelta(hours=10)
     
-    if not machine:
-        return render(request, 'list_pcb.html', {'logs': [], 'error_stats': [], 'total_logs': 0, 'machine_name': 'Unknown'})
-        
-    logs = Machine_Logs.objects.filter(machine=machine).order_by('-created')
+    # Lấy tất cả logs từ 10 giờ gần nhất, sắp xếp theo thời gian mới nhất
+    logs = Machine_Logs.objects.filter(created__gte=start_time).order_by('-created')[:400]
     
-    # Calculate error type frequency
-    error_counts = logs.values('type_error').annotate(count=Count('type_error')).order_by('-count')
+    # Calculate error type frequency for all logs in the last 10 hours
+    error_counts = Machine_Logs.objects.filter(created__gte=start_time).values('type_error').annotate(count=Count('type_error')).order_by('-count')
     
-    total_logs = logs.count()
+    total_logs = Machine_Logs.objects.filter(created__gte=start_time).count()
     error_stats = []
     max_error = None
     
@@ -52,6 +52,6 @@ def list_pcb(request):
         'error_stats': error_stats,
         'max_error': max_error,
         'total_logs': total_logs,
-        'machine_name': machine.name,
+        'machine_name': 'Last 10 Hours',
     }
     return render(request, 'list_pcb.html', context)

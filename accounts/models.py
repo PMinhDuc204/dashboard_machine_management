@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -9,7 +10,7 @@ class Profile(models.Model):
         default='blank-profile-picture.png'
     )
     location = models.CharField(max_length=100, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
@@ -33,14 +34,25 @@ class ErrorType(models.TextChoices):
     DEFECTIVE_LABEL = 'defective_label', 'Misaligned/Missing Label'
     WRONG_SHAPE_OR_POLARITY = 'wrong_shape_or_polarity', 'Wrong Shape/Polarity'
 
+class ResultType(models.TextChoices):
+    PASS = 'pass', 'Pass'
+    FAIL = 'fail', 'Fail'
+
 class Machine_Logs(models.Model):
     code_product = models.CharField(max_length=100)
+    result = models.CharField(
+        max_length=10,
+        choices=ResultType.choices,
+        default=ResultType.FAIL
+    )
     type_error = models.CharField(
         max_length=100,
         choices=ErrorType.choices,
-        default=ErrorType.MISSING_COMPONENT
+        blank=True,
+        null=True,
+        default=None
     )
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     

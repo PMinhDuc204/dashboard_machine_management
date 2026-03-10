@@ -41,6 +41,7 @@ urlpatterns = [
     # Stats API endpoints
     path('api/stats/errors/', views.api_error_stats, name='api_error_stats'),
     path('api/stats/products/', views.api_product_stats, name='api_product_stats'),
+    path('api/stats/pass/', views.api_pass_stats, name='api_pass_stats'),
     
     re_path(r'^.*$', page_not_found, name='page_not_found'),
 ]
