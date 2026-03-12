@@ -98,6 +98,66 @@
         align-items: center;
         font-size: 1.1em;
       }
+      /* === X200 ON POWER Card === */
+      .x200-power-card {
+        border: 2px solid #00c853;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0a2e14 0%, #1b5e20 60%, #2e7d32 100%);
+        color: #fff;
+        box-shadow: 0 0 18px 4px rgba(0,200,83,0.25);
+        transition: box-shadow 0.3s;
+      }
+      .x200-power-card.powered-on {
+        box-shadow: 0 0 30px 8px rgba(0,230,118,0.55);
+        animation: power-glow 2s infinite;
+      }
+      @keyframes power-glow {
+        0%, 100% { box-shadow: 0 0 18px 6px rgba(0,200,83,0.4); }
+        50%       { box-shadow: 0 0 36px 12px rgba(0,230,118,0.7); }
+      }
+      .x200-power-card .header {
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        padding: 12px 20px;
+      }
+      .x200-power-card .header h2 {
+        color: #b9f6ca;
+        font-size: 1rem;
+        margin: 0;
+      }
+      .x200-power-card .body {
+        padding: 16px 20px;
+      }
+      .x200-status-box {
+        background: rgba(0,0,0,0.35);
+        border-radius: 6px;
+        padding: 10px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        font-size: 1.1em;
+      }
+      .btn-power-on {
+        background: linear-gradient(135deg, #00c853, #00e676);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1em;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,200,83,0.45);
+        transition: all 0.25s;
+      }
+      .btn-power-on:hover {
+        background: linear-gradient(135deg, #00e676, #69f0ae);
+        box-shadow: 0 6px 24px rgba(0,230,118,0.65);
+        transform: translateY(-2px);
+        color: #fff;
+      }
+      .btn-power-on:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(0,200,83,0.3);
+      }
     </style>
   </head>
 
@@ -661,6 +721,38 @@
 
             <!-- ===== CARD ĐIỀU KHIỂN X100 NỔI BẬT ===== -->
             <div class="row clearfix">
+
+              <!-- ON POWER X200 Card -->
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card x200-power-card" id="x200-power-card">
+                  <div class="header">
+                    <h2>
+                      <i class="zmdi zmdi-power" style="color:#69f0ae; font-size:1.2em;"></i>
+                      <strong style="color:#b9f6ca;"> ON POWER — Bật Hệ Thống</strong>
+                      <small style="color:#a5d6a7; font-size:0.75em; margin-left:8px;">X200 — System Power</small>
+                    </h2>
+                  </div>
+                  <div class="body">
+                    <div class="x200-status-box">
+                      <span class="led-indicator led-off" id="led-x200"></span>
+                      <span style="color:#c8e6c9;">Trạng thái:&nbsp;</span>
+                      <span id="x200-status-text" class="font-weight-bold" style="color:#ef9a9a;">HỆ THỐNG TẮT</span>
+                      <span class="ml-auto" style="font-size:0.8em; color:#a5d6a7;">Địa chỉ: <strong>X200</strong></span>
+                    </div>
+                    <button id="btn-x200-power"
+                            class="btn btn-power-on btn-lg btn-block waves-effect mt-2"
+                            onclick="powerOnSystem()">
+                      <i class="zmdi zmdi-power"></i>&nbsp; BẬT HỆ THỐNG (X200)
+                    </button>
+                    <div class="text-center mt-2" style="font-size:0.8em; color:#a5d6a7;">
+                      <i class="zmdi zmdi-info-outline"></i>
+                      Nhấn để gửi lệnh X200 — kích hoạt toàn bộ hệ thống
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Origin M200 Card -->
               <div class="col-lg-4 col-md-6 col-sm-12">
                 <div class="card x100-card">
                   <div class="header">
@@ -690,38 +782,49 @@
                 </div>
               </div>
 
-              <div class="col-lg-8 col-md-6 col-sm-12">
-                <div class="card" style="height: calc(100% - 20px);">
-                  <div class="header">
-                    <h2><strong>Hướng dẫn sử dụng X100</strong></h2>
+              <!-- Y1 Control Card -->
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card" style="border: 2px solid #ce93d8; border-radius: 8px; background: linear-gradient(135deg, #311b92 0%, #4a148c 100%); color: #fff;">
+                  <div class="header" style="background: transparent; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 12px 20px;">
+                    <h2>
+                      <i class="zmdi zmdi-settings" style="color:#e1bee7;"></i>
+                      <strong style="color:#fff;"> Điều Khiển Y1</strong>
+                      <small style="color:#ce93d8; font-size:0.75em; margin-left:8px;">M100 / X15 / Y1</small>
+                    </h2>
                   </div>
-                  <div class="body">
-                    <table class="table table-sm">
-                      <tbody>
-                        <tr class="table-info">
-                          <td colspan="2" class="text-center">
-                            <strong>⚡ Origin = SET M200=1 (Internal Coil)</strong><br>
-                            <small class="text-muted">M address ghi được trực tiếp qua MC Protocol</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><code style="font-size:1.1em;">SET M200=1</code></td>
-                          <td><strong>[Bước 1]</strong> Ghi M200=1 + đọc lại readback ngay</td>
-                        </tr>
-                        <tr>
-                          <td><code style="font-size:1.1em; color:#00e676;">Readback OK ✅</code></td>
-                          <td><strong>[Bước 2]</strong> Đọc lại sau 300ms để xác nhận PLC scan cycle</td>
-                        </tr>
-                        <tr>
-                          <td><i class="zmdi zmdi-info text-info"></i> <strong>Debug Log</strong></td>
-                          <td>Xem panel Debug bên dưới — hiển thị giá trị thực tế từ PLC</td>
-                        </tr>
-                        <tr>
-                          <td><i class="zmdi zmdi-alert-circle text-warning"></i> <strong>Lưu ý</strong></td>
-                          <td>Phải <strong>kết nối PLC</strong> trước. M200 ON = Origin đang chạy thực tế.</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div class="body" style="padding: 16px 20px;">
+                    <div style="background: rgba(0,0,0,0.35); border-radius: 6px; padding: 10px 16px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; font-size: 1.1em;">
+                        <div>
+                            M100: <span id="val_M100" class="badge badge-secondary" style="font-size: 0.9em;">OFF</span>
+                        </div>
+                        <div>
+                            X15: <span id="val_X15" class="badge badge-secondary" style="font-size: 0.9em;">OFF</span>
+                        </div>
+                        <div>
+                            Y1: <span id="val_Y1" class="badge badge-secondary" style="font-size: 0.9em;">OFF</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-success btn-block waves-effect" onclick="controlY1('start')" title="Ghi M100=1">
+                                <i class="zmdi zmdi-play"></i> BẬT Y1 <br><small>(M100=1)</small>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-danger btn-block waves-effect" onclick="controlY1('stop')" title="Ghi M100=0">
+                                <i class="zmdi zmdi-stop"></i> TẮT Y1 <br><small>(M100=0)</small>
+                            </button>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button class="btn btn-warning btn-block waves-effect text-white" onclick="controlY1('pulse_x15')" title="Xung X15">
+                                <i class="zmdi zmdi-flash"></i> XUNG X15 (Sườn lên)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3" style="font-size:0.8em; color:#e1bee7;">
+                        <i class="zmdi zmdi-info-outline"></i>
+                        START/STOP Y1 tương ứng với code Python/Flask (M100/X15).
+                    </div>
                   </div>
                 </div>
               </div>

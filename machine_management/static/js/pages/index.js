@@ -1,10 +1,4 @@
-﻿//[custom Javascript]
-//Project:	Aero - Responsive Bootstrap 4 Template
-//Version:  1.0
-//Last change:  15/12/2019
-//Primary use:	Aero - Responsive Bootstrap 4 Template
-//should be included in all pages. It controls some layout
-$(function() {
+﻿$(function() {
     "use strict";
     initSparkline();
     initC3Chart();    
@@ -20,15 +14,14 @@ function initC3Chart() {
     setTimeout(function(){ 
         $(document).ready(function(){
             var chart = c3.generate({
-                bindto: '#chart-area-spline-sracked', // id of chart wrapper
+                bindto: '#chart-area-spline-sracked',
                 data: {
                     columns: [
-                        // each columns data
                         ['data1', 21, 8, 32, 18, 19, 17, 23, 12, 25, 37],
                         ['data2', 7, 11, 5, 7, 9, 16, 15, 23, 14, 55],
                         ['data3', 13, 7, 9, 15, 9, 31, 8, 27, 42, 18],
                     ],
-                    type: 'area-spline', // default type of chart
+                    type: 'area-spline',
                     groups: [
                         [ 'data1', 'data2', 'data3']
                     ],
@@ -38,7 +31,6 @@ function initC3Chart() {
                         'data3': Aero.colors["lime"],
                     },
                     names: {
-                        // name of each serie
                         'data1': 'Total Products',
                         'data2': 'Products Pass ',
                         'data3': 'Products Fail',
@@ -47,12 +39,11 @@ function initC3Chart() {
                 axis: {
                     x: {
                         type: 'category',
-                        // name of each category
                         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sept', 'Oct']
                     },
                 },
                 legend: {
-                    show: true, //hide legend
+                    show: true,
                 },
                 padding: {
                     bottom: 0,
@@ -62,22 +53,20 @@ function initC3Chart() {
         });    
         $(document).ready(function(){
             var chart = c3.generate({
-                bindto: '#chart-pie', // id of chart wrapper
+                bindto: '#chart-pie',
                 data: {
                     columns: [
-                        // each columns data
                         ['data1', 55],
                         ['data2', 25],
                         ['data3', 20],
                     ],
-                    type: 'pie', // default type of chart
+                    type: 'pie',
                     colors: {
                         'data1': Aero.colors["lime"],
                         'data2': Aero.colors["teal"],
                         'data3': Aero.colors["gray"],
                     },
                     names: {
-                        // name of each serie
                         'data1': 'Arizona',
                         'data2': 'Florida',
                         'data3': 'Texas',
@@ -86,7 +75,7 @@ function initC3Chart() {
                 axis: {
                 },
                 legend: {
-                    show: true, //hide legend
+                    show: true,
                 },
                 padding: {
                     bottom: 0,
@@ -96,14 +85,13 @@ function initC3Chart() {
         });
         $(document).ready(function(){
             var chart = c3.generate({
-                bindto: '#chart-area-step', // id of chart wrapper
+                bindto: '#chart-area-step',
                 data: {
                     columns: [
-                        // each columns data
                         ['data1', 11, 8, 15, 7, 11, 13],
                         ['data2', 7, 7, 5, 7, 9, 12]
                     ],
-                    type: 'area-step', // default type of chart
+                    type: 'area-step',
                     colors: {
                         'data1': Aero.colors["pink"],
                         'data2': Aero.colors["orange"]

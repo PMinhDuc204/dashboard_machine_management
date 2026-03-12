@@ -1,11 +1,7 @@
 let isConnected = false;
 let pollInterval = null;
 
-// ======= X100: Sườn xuống (Falling Edge / LDF) =======
-// X100 trong ladder dùng ký hiệu ↓↑ = LDF (Load Falling Edge)
-// PLC kích hoạt khi X100 chuyển 1→0 (sườn xuống)
-// Luồng điều khiển từ web:
-//   Nhấn nút → Force X100=1 → 200ms → Force X100=0 ← sườn xuống này kích hoạt PLC
+
 const deviceState = {
     'X100': 0,
     'X100_pulsing': false,
@@ -25,7 +21,6 @@ function toggleConnect() {
             updateConnectUI();
             if (isConnected) {
                 pollInterval = setInterval(pollPlcStatus, 1000);
-                // Đọc trạng thái X100 ngay lập tức khi kết nối
                 readX100State();
             } else {
                 clearInterval(pollInterval);
@@ -65,7 +60,6 @@ function updateConnectUI() {
     }
 }
 
-// ======= Đọc trạng thái X100 từ PLC (phản hồi từ PLC sau khi thực hiện Origin) =======
 function readX100State() {
     if (!isConnected) return;
     fetch('/api/plc/read_device/?address=X100')
@@ -82,7 +76,6 @@ function readX100State() {
     .catch(() => {});
 }
 
-// ======= Cập nhật LED trạng thái X100 (phản hồi PLC) =======
 function updateX100LED(value) {
     const led = document.getElementById('led-x100');
     const ledInline = document.getElementById('led-x100-inline');
@@ -116,7 +109,6 @@ function resetX100UI() {
     }
 }
 
-// ======= DEBUG LOGGER =======
 const plcDebugLogs = [];
 function debugLog(level, msg, data) {
     const now = new Date();
@@ -154,10 +146,6 @@ function clearDebugLog() {
     renderDebugPanel();
 }
 
-// ======= Lệnh ORIGIN — Ghi trực tiếp M200 (Internal Coil) =======
-// M200 là internal coil → ghi được qua MC Protocol
-// Chỉ cần SET M200=1 → PLC kích hoạt Origin sequence
-// Không cần pulse 2 bước như X100 (physical input)
 function triggerOriginX100() {
     if (!isConnected) {
         alert("Vui lòng kết nối PLC trước khi thực hiện Origin!");
@@ -174,14 +162,12 @@ function triggerOriginX100() {
     deviceState['X100_pulsing'] = true;
     debugLog('INFO', 'Bắt đầu lệnh Origin → SET M200=1 (internal coil)');
 
-    // UI: đang gửi
     if (btn) { btn.disabled = true; btn.className = "btn btn-warning btn-lg btn-block waves-effect mt-2"; btn.innerHTML = '<i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i> ĐANG GỬI M200=1...'; }
     if (led) led.className = "led-indicator led-pulse-origin";
     if (statusText) { statusText.innerText = "Đang SET M200=1..."; statusText.className = "font-weight-bold text-warning"; }
     if (ledInline) { ledInline.style.background = "#ff9800"; ledInline.style.boxShadow = "0 0 8px 3px #ff9800aa"; }
     note.innerText = "[1/2] SET M200=1 + đọc lại...";
 
-    // === Bước 1: Ghi M200=1 + readback ===
     fetch('/api/plc/command/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -205,12 +191,10 @@ function triggerOriginX100() {
         }
 
         if (data.status === 'ok' && data.readback_match !== false) {
-            // Ghi thành công + readback khớp → xác nhận ngay
             note.innerText = "[2/2] M200=1 ✔ — Đọc lại để xác nhận...";
             if (statusText) { statusText.innerText = "⏳ Đang xác nhận M200..."; statusText.className = "font-weight-bold text-info"; }
             debugLog('OK', 'M200=1 đã ghi thành công, readback khớp');
 
-            // Dù readback đã OK, đọc lại sau 300ms để chắc ăn (PLC scan cycle)
             setTimeout(() => {
                 fetch('/api/plc/read_device/?address=M200')
                 .then(res => res.json())
@@ -257,7 +241,6 @@ function triggerOriginX100() {
             }, 300);
 
         } else {
-            // Ghi thất bại hoặc readback không khớp
             deviceState['X100_pulsing'] = false;
             const errMsg = data.readback_match === false
                 ? `❌ Ghi M200=1 nhưng readback=${data.readback_value} — PLC từ chối lệnh`
@@ -279,7 +262,6 @@ function triggerOriginX100() {
         if (statusText) { statusText.innerText = "❌ LỖI MẠNG"; statusText.className = "font-weight-bold text-danger"; }
     });
 }
-// Alias
 var toggleX100 = triggerOriginX100;
 
 function pollPlcStatus() {
@@ -319,6 +301,19 @@ function pollPlcStatus() {
                 }
             }
             
+            if (data.m100 !== undefined) {
+                $('#val_M100').text(data.m100 ? 'ON' : 'OFF');
+                $('#val_M100').removeClass().addClass(data.m100 ? 'badge badge-success' : 'badge badge-secondary').css('font-size', '0.9em');
+            }
+            if (data.x15 !== undefined) {
+                $('#val_X15').text(data.x15 ? 'ON' : 'OFF');
+                $('#val_X15').removeClass().addClass(data.x15 ? 'badge badge-success' : 'badge badge-secondary').css('font-size', '0.9em');
+            }
+            if (data.y1 !== undefined) {
+                $('#val_Y1').text(data.y1 ? 'ON' : 'OFF');
+                $('#val_Y1').removeClass().addClass(data.y1 ? 'badge badge-success' : 'badge badge-secondary').css('font-size', '0.9em');
+            }
+            
             let activeElem = document.activeElement;
             if(data.params) {
                 if(activeElem.id !== 'input_D500') $('#input_D500').val(data.params.D500);
@@ -329,7 +324,6 @@ function pollPlcStatus() {
                 if(activeElem.id !== 'input_D306') $('#input_D306').val(data.params.D306);
             }
 
-            // Cập nhật trạng thái X100 mỗi 5 lần poll (mỗi 5 giây)
             if (typeof pollX100Counter === 'undefined') window.pollX100Counter = 0;
             window.pollX100Counter++;
             if (window.pollX100Counter % 5 === 0) {
@@ -344,7 +338,6 @@ function pollPlcStatus() {
         }
     })
     .catch(err => {
-        // Lỗi network khi poll — không alert để tránh spam
         console.warn('[PLC Poll] Lỗi kết nối:', err);
     });
 }
@@ -415,26 +408,171 @@ function saveConfiguration() {
    alert("Đã lưu trạng thái hệ thống SCADA!"); 
 }
 
-// ======= Global error handler =======
-// Bắt tất cả unhandled promise rejection để tránh lỗi "Uncaught (in promise)"
+const x200State = { isPowering: false };
+
+function powerOnSystem() {
+    if (!isConnected) {
+        alert("Vui lòng kết nối PLC trước khi bật hệ thống!");
+        return;
+    }
+    if (x200State.isPowering) return;
+
+    x200State.isPowering = true;
+
+    const btn       = document.getElementById('btn-x200-power');
+    const led       = document.getElementById('led-x200');
+    const statusTxt = document.getElementById('x200-status-text');
+    const card      = document.getElementById('x200-power-card');
+    const note      = document.getElementById('status_note');
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i>&nbsp; ĐANG BẬT HỆ THỐNG...';
+    }
+    if (led) led.className = 'led-indicator led-pulse-origin';
+    if (statusTxt) {
+        statusTxt.innerText = 'Đang gửi X200...';
+        statusTxt.style.color = '#ff9800';
+    }
+    if (note) note.innerText = 'Đang gửi lệnh ON POWER (X200) tới PLC...';
+
+    debugLog('INFO', 'Bắt đầu lệnh ON POWER → gửi X200 (pulse)');
+
+    fetch('/api/plc/command/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'X200', pulse: true, pulse_ms: 1500})
+    })
+    .then(res => res.json())
+    .then(data => {
+        x200State.isPowering = false;
+
+        if (data.status === 'ok') {
+            debugLog('OK', '✅ Lệnh X200 (ON POWER) đã được PLC nhận thành công', data);
+            if (led) led.className = 'led-indicator led-on';
+            if (statusTxt) {
+                statusTxt.innerText = '✅ HỆ THỐNG ON';
+                statusTxt.style.color = '#00e676';
+            }
+            if (card) card.classList.add('powered-on');
+            if (note) note.innerText = '✅ X200 ON — Toàn bộ hệ thống đã được bật!';
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="zmdi zmdi-check"></i>&nbsp; HỆ THỐNG ĐÃ BẬT (X200)';
+                btn.style.background = 'linear-gradient(135deg, #00897b, #00bfa5)';
+            }
+            setTimeout(() => {
+                if (led) led.className = 'led-indicator led-idle';
+                if (statusTxt) {
+                    statusTxt.innerText = 'HỆ THỐNG SẴN SÀNG';
+                    statusTxt.style.color = '#80cbc4';
+                }
+                if (btn) {
+                    btn.innerHTML = '<i class="zmdi zmdi-power"></i>&nbsp; BẬT HỆ THỐNG (X200)';
+                    btn.style.background = '';
+                }
+            }, 6000);
+
+        } else {
+            // Thất bại
+            const errMsg = `❌ X200 thất bại: ${data.message || 'Không rõ lý do'}`;
+            debugLog('ERR', errMsg, data);
+            if (led) led.className = 'led-indicator led-off';
+            if (statusTxt) {
+                statusTxt.innerText = '❌ LỖI GỬI X200';
+                statusTxt.style.color = '#ef5350';
+            }
+            if (card) card.classList.remove('powered-on');
+            if (note) note.innerText = errMsg;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="zmdi zmdi-power"></i>&nbsp; BẬT HỆ THỐNG (X200)';
+                btn.style.background = '';
+            }
+        }
+    })
+    .catch(err => {
+        x200State.isPowering = false;
+        const errMsg = `❌ Lỗi mạng khi gửi X200: ${err}`;
+        debugLog('ERR', errMsg, { error: String(err) });
+        if (led) led.className = 'led-indicator led-off';
+        if (statusTxt) {
+            statusTxt.innerText = '❌ LỖI MẠNG';
+            statusTxt.style.color = '#ef5350';
+        }
+        if (card) card.classList.remove('powered-on');
+        if (note) note.innerText = errMsg;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="zmdi zmdi-power"></i>&nbsp; BẬT HỆ THỐNG (X200)';
+            btn.style.background = '';
+        }
+    });
+}
+
+function controlY1(action) {
+    if(!isConnected) {
+        alert("Vui lòng kết nối PLC trước khi gửi lệnh!");
+        return;
+    }
+    const note = document.getElementById('status_note');
+    let payload = {};
+    
+    if (action === 'start') {
+        payload = { command: 'M100', value: 1 };
+        note.innerText = "Đang gửi lệnh BẬT Y1 (M100=1)...";
+        debugLog('INFO', 'Gửi lệnh BẬT Y1 -> M100=1');
+    } else if (action === 'stop') {
+        payload = { command: 'M100', value: 0 };
+        note.innerText = "Đang gửi lệnh TẮT Y1 (M100=0)...";
+        debugLog('INFO', 'Gửi lệnh TẮT Y1 -> M100=0');
+    } else if (action === 'pulse_x15') {
+        payload = { command: 'X15', pulse: true, pulse_ms: 100 };
+        note.innerText = "Đang xung X15 (100ms)...";
+        debugLog('INFO', 'Gửi lệnh XUNG X15 (Sườn lên)');
+    }
+    
+    fetch('/api/plc/command/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            note.innerText = "Lệnh Y1 (" + action + ") xử lý xong.";
+            debugLog('OK', `Lệnh ${action} thành công`, data);
+        } else {
+            note.innerText = "❌ Lệnh Y1 thất bại: " + (data.message || '');
+            debugLog('ERR', `Lệnh ${action} thất bại`, data);
+        }
+        setTimeout(readY1State, 300);
+    })
+    .catch(err => {
+        note.innerText = "⚠ Lỗi gửi lệnh " + action + ": " + err;
+        debugLog('ERR', `Lỗi network khi gửi ${action}`, err);
+    });
+}
+
+function readY1State() {
+    pollPlcStatus();
+}
+
 window.addEventListener('unhandledrejection', function(event) {
-    // Bỏ qua lỗi từ extension của browser (onboarding.js, rejectFunction, v.v.)
     if (!event.reason) {
-        // Nếu reason là undefined/null, có thể từ extension
         event.preventDefault();
         return;
     }
     
     var reasonStr = (event.reason.stack || String(event.reason)).toLowerCase();
-    // Lọc lỗi từ extension
     if (reasonStr.includes('onboarding') || 
         reasonStr.includes('extension') ||
         reasonStr.includes('rejectfunction') ||
         reasonStr.includes('chrome-extension') ||
         event.reason.toString().includes('chrome-extension')) {
-        event.preventDefault(); // Ngăn lỗi hiện ra console
+        event.preventDefault();
         return;
     }
     console.warn('[PLC] Unhandled Promise Rejection:', event.reason);
-    event.preventDefault(); // Ngăn lỗi hiện ra console như "Uncaught"
+    event.preventDefault();
 });
