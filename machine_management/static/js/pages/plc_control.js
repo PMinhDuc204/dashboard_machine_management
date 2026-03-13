@@ -410,7 +410,7 @@ function saveConfiguration() {
 
 const x200State = { isPowering: false };
 
-function HelloWorld() {
+window.HelloWorld = function() {
     console.log("HelloWorld() was called");
     if (!isConnected) {
         alert("Vui lòng kết nối PLC trước khi bật hệ thống!");
