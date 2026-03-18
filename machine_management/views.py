@@ -41,8 +41,13 @@ def api_connect_plc(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            ip = data.get('ip', '192.168.1.10')
-            port = data.get('port', 5011)
+            ip = data.get('ip') or os.getenv('HOST_PLC')
+            port_str = data.get('port') or os.getenv('PORT_TCP')
+            
+            if not ip or not port_str:
+                return JsonResponse({'status': 'error', 'message': 'PLC Connection configuration (IP/Port) is missing in .env'})
+                
+            port = int(port_str)
             action = data.get('action', 'connect')
             
             if action == 'connect':

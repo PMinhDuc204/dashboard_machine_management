@@ -6,7 +6,7 @@ function toggleConnect() {
     fetch('/api/plc/connect/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({action: action, ip: '192.168.1.10', port: 5011})
+        body: JSON.stringify({action: action})
     })
     .then(res => res.json())
     .then(data => {
@@ -33,8 +33,6 @@ function updateConnectUI() {
         dot.className = "badge badge-success";
         dot.innerText = "Đã kết nối PLC";
         note.innerText = "Sẵn sàng hoạt động...";
-        document.getElementById('val_M80').innerText = "ĐANG TẢI...";
-        document.getElementById('val_M80').className = "text-info font-weight-bold";
         if (connectBtn) {
             connectBtn.className = "btn btn-outline-danger btn-sm";
             connectBtn.innerText = "NGẮT KẾT NỐI";
@@ -43,8 +41,6 @@ function updateConnectUI() {
         dot.className = "badge badge-danger";
         dot.innerText = "Chưa kết nối PLC";
         note.innerText = "Hệ thống đang chờ kết nối...";
-        document.getElementById('val_M80').innerText = "OFF";
-        document.getElementById('val_M80').className = "text-muted font-weight-bold";
         if (connectBtn) {
             connectBtn.className = "btn btn-outline-info btn-sm";
             connectBtn.innerText = "KẾT NỐI PLC";
@@ -103,27 +99,7 @@ function pollPlcStatus() {
                 $('#val_D20').text(data.data.rate !== undefined ? data.data.rate : 0);
             }
             
-            $('#val_D100').text(data.d100 !== undefined ? data.d100 : 0);
-            
-            if(data.m80 !== undefined) {
-                if(data.m80 == 1) {
-                    $('#val_M80').text('ON (Ready)');
-                    $('#val_M80').removeClass().addClass('text-success font-weight-bold');
-                } else {
-                    $('#val_M80').text('OFF');
-                    $('#val_M80').removeClass().addClass('text-muted font-weight-bold');
-                }
-            }
-            
-            if(data.m5000 !== undefined) {
-                if(data.m5000 == 1) {
-                    $('#val_M5000').text('ON (Alarm)');
-                    $('#val_M5000').removeClass().addClass('text-danger font-weight-bold');
-                } else {
-                    $('#val_M5000').text('OFF');
-                    $('#val_M5000').removeClass().addClass('text-muted font-weight-bold');
-                }
-            }
+
             
             if (data.m100 !== undefined) {
                 $('#val_M100').text(data.m100 ? 'ON' : 'OFF');
@@ -225,8 +201,8 @@ function saveParameters() {
 
 const x200State = { isPowering: false };
 
-window.HelloWorld = function() {
-    console.log("HelloWorld() was called");
+function onPowerSystem() {
+    console.log("onPowerSystem() was called");
     if (!isConnected) {
         alert("Vui lòng kết nối PLC trước khi bật hệ thống!");
         return;
@@ -359,8 +335,139 @@ function controlY1(action) {
     });
 }
 
+function pulseCommand(address, ms=500) {
+    if(!isConnected) { 
+        alert("Vui lòng kết nối PLC trước khi gửi lệnh!"); 
+        return; 
+    }
+    const note = document.getElementById('status_note');
+    note.innerText = `Đang gửi lệnh Pulse ${ms}ms -> ${address}...`;
+    debugLog('INFO', `Lệnh Pulse ${ms}ms -> ${address}`);
+    
+    fetch('/api/plc/command/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: address, pulse: true, pulse_ms: ms})
+    }).then(res => res.json()).then(data => {
+        if (data.status === 'ok') note.innerText = `Lệnh Pulse ${address} thành công.`;
+    }).catch(err => {
+        note.innerText = `⚠ Lỗi gửi lệnh Pulse ${address}: ` + err;
+        debugLog('ERR', `Lỗi network khi gửi Pulse ${address}`, err);
+    });
+}
 
+function pulseLightOff(ms=500) {
+    if(!isConnected) { 
+        alert("Vui lòng kết nối PLC trước khi gửi lệnh!"); 
+        return; 
+    }
+    const note = document.getElementById('status_note');
+    note.innerText = "Đang Pulse nút Light OFF (X152)...";
+    debugLog('INFO', 'Pulse nút Light OFF -> Ghi X151=0, Pulse X152');
+    
+    // First turn off X151
+    fetch('/api/plc/command/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'X151', value: 0})
+    }).then(() => {
+        // Then pulse X152
+        return fetch('/api/plc/command/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: 'X152', pulse: true, pulse_ms: ms})
+        });
+    }).then(res => res.json()).then(data => {
+        if (data.status === 'ok') note.innerText = "Pulse Light OFF thành công.";
+    }).catch(err => {
+        note.innerText = "⚠ Lỗi gửi lệnh Pulse Light OFF: " + err;
+        debugLog('ERR', 'Lỗi network khi gửi Pulse Light OFF', err);
+    });
+}
 
+let momentaryBtnState = {};
+
+function controlMomentary(address, state, event) {
+    if (event && event.type.startsWith('touch')) {
+        if (event.cancelable) event.preventDefault();
+    }
+
+    if(!isConnected) {
+        if(state === 1) alert("Vui lòng kết nối PLC trước khi gửi lệnh!");
+        return;
+    }
+    
+    if (momentaryBtnState[address] === state) return;
+    momentaryBtnState[address] = state;
+    
+    const note = document.getElementById('status_note');
+    
+    if (state === 1) {
+        note.innerText = `Đang gửi lệnh NHẤN nút ( ${address} = 1 )...`;
+        debugLog('INFO', `Nhấn nút ${address} -> 1`);
+        fetch('/api/plc/command/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: address, value: 1})
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'ok') note.innerText = `Nhấn nút ${address} thành công.`;
+        });
+    } else {
+        note.innerText = `Đang gửi lệnh NHẢ nút ( ${address} = 0 )...`;
+        debugLog('INFO', `Nhả nút ${address} -> 0`);
+        fetch('/api/plc/command/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: address, value: 0})
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'ok') note.innerText = `Nhả nút ${address} thành công.`;
+        });
+    }
+}
+
+function controlLightOffMomentary(state, event) {
+    if (event && event.type.startsWith('touch')) {
+        if (event.cancelable) event.preventDefault();
+    }
+
+    if(!isConnected) {
+        if(state === 1) alert("Vui lòng kết nối PLC trước khi gửi lệnh!");
+        return;
+    }
+    
+    if (momentaryBtnState['X152'] === state) return;
+    momentaryBtnState['X152'] = state;
+
+    const note = document.getElementById('status_note');
+
+    if (state === 1) {
+        note.innerText = "Đang gửi lệnh NHẤN nút Light OFF (X151=0, X152=1)...";
+        debugLog('INFO', 'Nhấn nút Light OFF -> X151=0, X152=1');
+        fetch('/api/plc/command/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: 'X151', value: 0})
+        }).then(() => {
+            return fetch('/api/plc/command/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: 'X152', value: 1})
+            });
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'ok') note.innerText = "Nhấn nút Light OFF thành công.";
+        });
+    } else {
+        note.innerText = "Đang gửi lệnh NHẢ nút Light OFF (X152=0)...";
+        debugLog('INFO', 'Nhả nút Light OFF -> X152=0');
+        fetch('/api/plc/command/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: 'X152', value: 0})
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'ok') note.innerText = "Nhả nút Light OFF thành công.";
+        });
+    }
+}
 
 function readY1State() {
     pollPlcStatus();

@@ -14,17 +14,13 @@ def user_list(request):
     return render(request, 'user_list.html', context)
 
 def list_pcb(request):
-    # Lấy logs từ 10 giờ gần nhất
-    now = timezone.now()
-    start_time = now - timedelta(hours=10)
+    # Lấy toàn bộ logs, sắp xếp theo thời gian mới nhất (lấy tối đa 400 dòng)
+    logs = Machine_Logs.objects.all().order_by('-created')[:400]
     
-    # Lấy tất cả logs từ 10 giờ gần nhất, sắp xếp theo thời gian mới nhất
-    logs = Machine_Logs.objects.filter(created__gte=start_time).order_by('-created')[:400]
+    # Calculate error type frequency for all logs
+    error_counts = Machine_Logs.objects.values('type_error').annotate(count=Count('type_error')).order_by('-count')
     
-    # Calculate error type frequency for all logs in the last 10 hours
-    error_counts = Machine_Logs.objects.filter(created__gte=start_time).values('type_error').annotate(count=Count('type_error')).order_by('-count')
-    
-    total_logs = Machine_Logs.objects.filter(created__gte=start_time).count()
+    total_logs = Machine_Logs.objects.count()
     error_stats = []
     max_error = None
     
@@ -52,6 +48,6 @@ def list_pcb(request):
         'error_stats': error_stats,
         'max_error': max_error,
         'total_logs': total_logs,
-        'machine_name': 'Last 10 Hours',
+        'machine_name': 'All Time Logs',
     }
     return render(request, 'list_pcb.html', context)
