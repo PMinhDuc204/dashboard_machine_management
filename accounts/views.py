@@ -17,6 +17,19 @@ def user_list(request):
     context = {'users': users}
     return render(request, 'user_list.html', context)
 
+ERROR_FIELDS = {
+    'caminput': 'Cam Input',
+    'grayfilter': 'Gray Filter',
+    'shape01': 'Shape 01',
+    'pos01': 'Pos 01',
+    'label01': 'Label 01',
+    'switch01': 'Switch 01',
+    'shape02': 'Shape 02',
+    'pos02': 'Pos 02',
+    'switch02': 'Switch 02',
+    'resultdisplay': 'Result Display'
+}
+
 def list_pcb(request):
     # Lấy toàn bộ logs, sắp xếp theo thời gian mới nhất (lấy tối đa 400 dòng)
     logs = Machine_Logs.objects.all().order_by('-created')[:400]
@@ -25,40 +38,19 @@ def list_pcb(request):
     total_errors = Machine_Logs.objects.filter(status=0).count()
     error_percentage = round((total_errors / total_logs * 100), 2) if total_logs > 0 else 0
     
-    # Fields to check for errors (0 means error)
-    error_fields = {
-        'caminput': 'Cam Input',
-        'grayfilter': 'Gray Filter',
-        'shape01': 'Shape 01',
-        'pos01': 'Pos 01',
-        'label01': 'Label 01',
-        'switch01': 'Switch 01',
-        'shape02': 'Shape 02',
-        'pos02': 'Pos 02',
-        'switch02': 'Switch 02',
-        'resultdisplay': 'Result Display'
-    }
-    
-    agg_args = {
-        f"{field}_err": Count('id', filter=Q(**{field: 0})) for field in error_fields.keys()
-    }
-    
+    agg_args = {f"{f}_err": Count('id', filter=Q(**{f: 0})) for f in ERROR_FIELDS}
     error_counts_dict = Machine_Logs.objects.aggregate(**agg_args)
     
-    error_stats = []
+    error_stats = [
+        {
+            'label': label,
+            'count': count,
+            'percentage': round((count / total_logs * 100), 2) if total_logs > 0 else 0
+        }
+        for field, label in ERROR_FIELDS.items()
+        if (count := error_counts_dict[f"{field}_err"]) > 0
+    ]
     
-    for field, label in error_fields.items():
-        count = error_counts_dict[f"{field}_err"]
-        if count > 0:
-            percentage = (count / total_logs * 100) if total_logs > 0 else 0
-            
-            stat = {
-                'label': label,
-                'count': count,
-                'percentage': round(percentage, 2)
-            }
-            error_stats.append(stat)
-        
     # Sort stats descending
     error_stats.sort(key=lambda x: x['count'], reverse=True)
     

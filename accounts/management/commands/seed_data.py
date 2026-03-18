@@ -43,9 +43,7 @@ LOCATIONS = [
     "Binh Duong","Dong Nai","Hai Phong",
 ]
 
-SHAPES = [0, 1, 2, 3] # Representing Circle, Square, Rectangle, Triangle
-SWITCH_STATES = [0, 1]
-RESULT_DISPLAYS = [0, 1]
+
 
 # ---------------------------------------------------------------------
 # Command
@@ -157,24 +155,16 @@ class Command(BaseCommand):
                 is_pass = random.random() < 0.7
                 status = 1 if is_pass else 0
                 
-                # If pass, everything is 1. If fail, mix 0 and 1 ensuring some are 0.
-                def get_val(is_pass):
-                    return 1 if is_pass else (1 if random.random() > 0.4 else 0)
-                
-                caminput_val = get_val(is_pass)
-                grayfilter_val = get_val(is_pass)
-                shape01_val = get_val(is_pass)
-                pos01_val = get_val(is_pass)
-                label01_val = get_val(is_pass)
-                switch01_val = get_val(is_pass)
-                shape02_val = get_val(is_pass)
-                pos02_val = get_val(is_pass)
-                switch02_val = get_val(is_pass)
-                res_disp_val = get_val(is_pass)
-                
-                # Guarantee at least one 0 if it failed
-                if not is_pass and all(v == 1 for v in [caminput_val, grayfilter_val, shape01_val, pos01_val, label01_val, switch01_val, shape02_val, pos02_val, switch02_val, res_disp_val]):
-                    shape01_val = 0
+                # If pass, all 10 checking values are 1.
+                # If fail, mix 0 and 1 ensuring at least one is 0.
+                if is_pass:
+                    vals = [1] * 10
+                else:
+                    vals = [1 if random.random() > 0.4 else 0 for _ in range(10)]
+                    if all(v == 1 for v in vals):
+                        vals[0] = 0 # Force at least one fail
+                        
+                caminput_val, grayfilter_val, shape01_val, pos01_val, label01_val, switch01_val, shape02_val, pos02_val, switch02_val, res_disp_val = vals
 
                 log_objects.append(
                     Machine_Logs(
