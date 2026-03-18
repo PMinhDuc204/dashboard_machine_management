@@ -368,7 +368,6 @@
                                             <th>Pos 02</th>
                                             <th>Switch 02</th>
                                             <th>Result Disp</th>
-                                            <th>Machine</th>
                                             <th>Date Created</th>
                                         </tr>
                                     </thead>
@@ -387,7 +386,6 @@
                                             <th>Pos 02</th>
                                             <th>Switch 02</th>
                                             <th>Result Disp</th>
-                                            <th>Machine</th>
                                             <th>Date Created</th>
                                         </tr>
                                     </tfoot>
@@ -411,7 +409,6 @@
                                             <td>{{ log.pos02|default:"-" }}</td>
                                             <td>{{ log.switch02|default:"-" }}</td>
                                             <td>{{ log.resultdisplay|default:"-" }}</td>
-                                            <td>{{ log.machine.name|default:"-" }}</td>
                                             <td>{{ log.created|date:"Y-m-d H:i" }}</td>
                                         </tr>
                                         {% endfor %}
