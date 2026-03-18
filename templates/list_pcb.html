@@ -355,24 +355,63 @@
                                 <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
                                      <thead>
                                         <tr>
-                                            <th>Product Code</th>
-                                            <th>Error Type</th>
+                                            <th>ID</th>
+                                            <th>Status</th>
+                                            <th>Time(ms)</th>
+                                            <th>Cam Input</th>
+                                            <th>Gray Filter</th>
+                                            <th>Shape 01</th>
+                                            <th>Pos 01</th>
+                                            <th>Label 01</th>
+                                            <th>Switch 01</th>
+                                            <th>Shape 02</th>
+                                            <th>Pos 02</th>
+                                            <th>Switch 02</th>
+                                            <th>Result Disp</th>
                                             <th>Machine</th>
                                             <th>Date Created</th>
                                         </tr>
                                     </thead>
-                                    <!-- <tfoot>
+                                    <tfoot>
                                         <tr>
+                                            <th>ID</th>
+                                            <th>Status</th>
+                                            <th>Time(ms)</th>
+                                            <th>Cam Input</th>
+                                            <th>Gray Filter</th>
+                                            <th>Shape 01</th>
+                                            <th>Pos 01</th>
+                                            <th>Label 01</th>
+                                            <th>Switch 01</th>
+                                            <th>Shape 02</th>
+                                            <th>Pos 02</th>
+                                            <th>Switch 02</th>
+                                            <th>Result Disp</th>
+                                            <th>Machine</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </tfoot>
                                     <tbody>
                                         {% for log in logs %}
                                         <tr>
                                             <td>{{ log.id }}</td>
                                             <td>
-                                                <span class="badge badge-warning">{{ log.status|default:"N/A" }}</span>
+                                                <span class="badge {% if log.status == 1 %}badge-success{% else %}badge-warning{% endif %}">
+                                                    {% if log.status == 1 %}PASS{% elif log.status == 0 %}FAIL{% else %}N/A{% endif %}
+                                                </span>
                                             </td>
-                                            <td>{{ log.process_time_ms|default:0 }} ms</td>
-                                            <td>{{ log.resultdisplay }}</td>
-                                            <td>{{ log.machine.name|default:"Unknown" }}</td>
+                                            <td>{{ log.process_time_ms|default:0 }}</td>
+                                            <td>{{ log.caminput|default:"-" }}</td>
+                                            <td>{{ log.grayfilter|default:"-" }}</td>
+                                            <td>{{ log.shape01|default:"-" }}</td>
+                                            <td>{{ log.pos01|default:"-" }}</td>
+                                            <td>{{ log.label01|default:"-" }}</td>
+                                            <td>{{ log.switch01|default:"-" }}</td>
+                                            <td>{{ log.shape02|default:"-" }}</td>
+                                            <td>{{ log.pos02|default:"-" }}</td>
+                                            <td>{{ log.switch02|default:"-" }}</td>
+                                            <td>{{ log.resultdisplay|default:"-" }}</td>
+                                            <td>{{ log.machine.name|default:"-" }}</td>
                                             <td>{{ log.created|date:"Y-m-d H:i" }}</td>
                                         </tr>
                                         {% endfor %}

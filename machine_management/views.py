@@ -299,12 +299,12 @@ def api_product_stats(request):
     start_time = now - timedelta(hours=10)
 
     # Tính toán thống kê tổng thể từ database
-    total_pass = Machine_Logs.objects.filter(status__iexact='pass').count()
-    total_errors = Machine_Logs.objects.filter(status__iexact='fail').count()
+    total_pass = Machine_Logs.objects.filter(status=1).count()
+    total_errors = Machine_Logs.objects.filter(status=0).count()
     total_all = total_pass + total_errors
 
     # Trong 10h gần nhất
-    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, status__iexact='fail').count()
+    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, status=0).count()
     
     return JsonResponse({
         'total': total_all,
@@ -324,7 +324,7 @@ def api_pass_stats(request):
     # Lấy tất cả logs PASS trong 10 giờ gần nhất
     pass_logs = Machine_Logs.objects.filter(
         created__gte=start_time,
-        status__iexact='pass'
+        status=1
     )
     
     # Nhóm theo giờ
