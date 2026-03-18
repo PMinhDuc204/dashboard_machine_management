@@ -1,7 +1,6 @@
 import os
 import datetime
 import mimetypes
-
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -10,8 +9,8 @@ from datetime import timedelta
 from django.db.models import Count
 from django.conf import settings
 from django.http import FileResponse, HttpResponseNotFound
-
 from .models import *
+
 
 def user_list(request):
     users = User.objects.all()
@@ -34,7 +33,6 @@ def list_pcb(request):
         count = e['count']
         percentage = (count / total_logs * 100) if total_logs > 0 else 0
         
-        # Get readable label from ErrorType choices
         label = dict(ErrorType.choices).get(enum_val, enum_val)
         
         stat = {
@@ -44,7 +42,6 @@ def list_pcb(request):
         }
         error_stats.append(stat)
         
-        # The first item is the max error since we ordered by '-count'
         if idx == 0:
             max_error = stat
             
@@ -68,7 +65,6 @@ def logs_images(request):
     subpath = request.GET.get('path', '')
     current_path = os.path.abspath(os.path.join(base_dir, subpath))
     
-    # Security: Ensure we don't go out of base_dir
     if not current_path.startswith(os.path.abspath(base_dir)):
         current_path = os.path.abspath(base_dir)
         subpath = ''
