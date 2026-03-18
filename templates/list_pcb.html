@@ -363,20 +363,16 @@
                                     </thead>
                                     <!-- <tfoot>
                                         <tr>
-                                            <th>Product Code</th>
-                                            <th>Error Type</th>
-                                            <th>Machine</th>
-                                            <th>Date Created</th>
-                                        </tr>
-                                    </tfoot> -->
                                     <tbody>
                                         {% for log in logs %}
                                         <tr>
-                                            <td>{{ log.code_product }}</td>
+                                            <td>{{ log.id }}</td>
                                             <td>
-                                                <span class="badge badge-warning">{{ log.get_type_error_display|default:log.type_error }}</span>
+                                                <span class="badge badge-warning">{{ log.status|default:"N/A" }}</span>
                                             </td>
-                                            <td>{{ log.machine.name }}</td>
+                                            <td>{{ log.process_time_ms|default:0 }} ms</td>
+                                            <td>{{ log.resultdisplay }}</td>
+                                            <td>{{ log.machine.name|default:"Unknown" }}</td>
                                             <td>{{ log.created|date:"Y-m-d H:i" }}</td>
                                         </tr>
                                         {% endfor %}

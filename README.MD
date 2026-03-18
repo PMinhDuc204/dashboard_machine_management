@@ -20,12 +20,12 @@
     ```python
     *   DATABASES = {
             'default': {
-                'ENGINE': 'django.db.backends.postgresql',
+                'ENGINE': 'django.db.backends.mysql',
                 'NAME': 'machine_management',
-                'USER': 'postgres',
-                'PASSWORD': '123456',
+                'USER': 'root',
+                'PASSWORD': 'root',
                 'HOST': 'localhost',
-                'PORT': '5432',
+                'PORT': '3306',
                 }
             }
     ```

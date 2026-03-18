@@ -21,19 +21,20 @@ def list_pcb(request):
     # Lấy toàn bộ logs, sắp xếp theo thời gian mới nhất (lấy tối đa 400 dòng)
     logs = Machine_Logs.objects.all().order_by('-created')[:400]
     
-    # Calculate error type frequency for all logs
-    error_counts = Machine_Logs.objects.values('type_error').annotate(count=Count('type_error')).order_by('-count')
+    # Calculate status frequency for all logs
+    error_counts = Machine_Logs.objects.values('status').annotate(count=Count('status')).order_by('-count')
     
     total_logs = Machine_Logs.objects.count()
     error_stats = []
     max_error = None
     
     for idx, e in enumerate(error_counts):
-        enum_val = e['type_error']
+        enum_val = e['status']
         count = e['count']
         percentage = (count / total_logs * 100) if total_logs > 0 else 0
         
-        label = dict(ErrorType.choices).get(enum_val, enum_val)
+        # Get readable label
+        label = str(enum_val) if enum_val else "Unknown"
         
         stat = {
             'label': label,
@@ -42,6 +43,7 @@ def list_pcb(request):
         }
         error_stats.append(stat)
         
+        # The first item is the max error since we ordered by '-count'
         if idx == 0:
             max_error = stat
             

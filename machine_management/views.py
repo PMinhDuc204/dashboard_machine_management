@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from accounts.models import Machine_Logs, ErrorType, ResultType
+from accounts.models import Machine_Logs
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncMinute, TruncHour, TruncDay
@@ -278,14 +278,13 @@ def api_error_stats(request):
             data.append(day_map.get(d_str, 0))
             
     # Chart 2: Error Distribution
-    error_types = dist_logs.values('type_error').annotate(count=Count('id')).order_by('-count')
-    error_choices = dict(ErrorType.choices)
+    error_types = dist_logs.values('status').annotate(count=Count('id')).order_by('-count')
     
     dist_labels = []
     dist_data = []
     for e in error_types:
-        val = e['type_error']
-        dist_labels.append(error_choices.get(val, val))
+        val = e['status']
+        dist_labels.append(str(val) if val else "Unknown")
         dist_data.append(e['count'])
 
     return JsonResponse({
@@ -300,12 +299,12 @@ def api_product_stats(request):
     start_time = now - timedelta(hours=10)
 
     # Tính toán thống kê tổng thể từ database
-    total_pass = Machine_Logs.objects.filter(result=ResultType.PASS).count()
-    total_errors = Machine_Logs.objects.filter(result=ResultType.FAIL).count()
+    total_pass = Machine_Logs.objects.filter(status__iexact='pass').count()
+    total_errors = Machine_Logs.objects.filter(status__iexact='fail').count()
     total_all = total_pass + total_errors
 
     # Trong 10h gần nhất
-    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, result=ResultType.FAIL).count()
+    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, status__iexact='fail').count()
     
     return JsonResponse({
         'total': total_all,
@@ -325,7 +324,7 @@ def api_pass_stats(request):
     # Lấy tất cả logs PASS trong 10 giờ gần nhất
     pass_logs = Machine_Logs.objects.filter(
         created__gte=start_time,
-        result=ResultType.PASS
+        status__iexact='pass'
     )
     
     # Nhóm theo giờ

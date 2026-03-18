@@ -26,38 +26,29 @@ class Machine(models.Model):
     def __str__(self):
         return self.name
 
-class ErrorType(models.TextChoices):
-    MISSING_COMPONENT = 'missing_component', 'Missing Component'
-    MISPLACED_COMPONENT = 'misplaced_component', 'Misplaced Component'
-    SOLDERING_DEFECT = 'soldering_defect', 'Soldering Defect'
-    MISSING_PIN = 'missing_pin', 'Missing Pin'
-    DEFECTIVE_LABEL = 'defective_label', 'Misaligned/Missing Label'
-    WRONG_SHAPE_OR_POLARITY = 'wrong_shape_or_polarity', 'Wrong Shape/Polarity'
 
-class ResultType(models.TextChoices):
-    PASS = 'pass', 'Pass'
-    FAIL = 'fail', 'Fail'
 
 class Machine_Logs(models.Model):
-    code_product = models.CharField(max_length=100)
-    result = models.CharField(
-        max_length=10,
-        choices=ResultType.choices,
-        default=ResultType.FAIL
-    )
-    type_error = models.CharField(
-        max_length=100,
-        choices=ErrorType.choices,
-        blank=True,
-        null=True,
-        default=None
-    )
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE, null=True, blank=True)
+    
+    process_time_ms = models.IntegerField(null=True, blank=True)
+    caminput = models.CharField(max_length=255, null=True, blank=True)
+    grayfilter = models.CharField(max_length=255, null=True, blank=True)
+    shape01 = models.CharField(max_length=255, null=True, blank=True)
+    pos01 = models.CharField(max_length=255, null=True, blank=True)
+    label01 = models.CharField(max_length=255, null=True, blank=True)
+    switch01 = models.CharField(max_length=255, null=True, blank=True)
+    shape02 = models.CharField(max_length=255, null=True, blank=True)
+    pos02 = models.CharField(max_length=255, null=True, blank=True)
+    switch02 = models.CharField(max_length=255, null=True, blank=True)
+    resultdisplay = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
+    
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
-    machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.code_product
+        return f"Log ID: {self.id} - Status: {self.status}"
 
 class Machine_Logs_Images(models.Model):
     image_url = models.ImageField(upload_to='machine_logs_images')
