@@ -49,4 +49,7 @@
 
 5.  **Access the App**
     *   Open browser at: `http://127.0.0.1:8000`
-
+6.  **Monitor the CSV file**
+    ```bash
+    python manage.py import_csv logdata.csv
+    ```
