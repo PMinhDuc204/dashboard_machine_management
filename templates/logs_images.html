@@ -10,7 +10,7 @@
 <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 <meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
 
-<title>MECA-NSUTC2501 :: List PCB</title>
+<title>MECA-NSUTC2501 :: Log Images</title>
 <link rel="icon" href="{% static 'images/logo.svg' %}" type="image/x-icon" />
 
 <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
@@ -191,10 +191,10 @@
             <li class="active open"><a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-apps"></i><span>App</span></a>
                 <ul class="ml-menu">
                     <li><a href="{% url 'user_list' %}">User</a></li>
-                    <li class="active"><a href="{% url 'list_pcb' %}">List PCB</a></li>
+                    <li><a href="{% url 'list_pcb' %}">List PCB</a></li>
                     <li><a href="{% url 'machine-detail' %}">Machine</a></li>
                     <li><a href="{% url 'plc-control' %}">PLC Control</a></li>
-                    <li><a href="{% url 'logs_images' %}">Log Images</a></li>
+                    <li class="active"><a href="{% url 'logs_images' %}">Log Images</a></li>
                     <li><a href="events.html">Calendar</a></li>
                     <li><a href="contact.html">Contract</a></li>
                 </ul>
@@ -247,11 +247,11 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-7 col-md-6 col-sm-12">
-                    <h2>List PCB</h2>
+                    <h2>Log Images Browser</h2>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="zmdi zmdi-home"></i> App</a></li>
-                        <li class="breadcrumb-item"><a href="javascript:void(0);">List PCB</a></li>
-                        <li class="breadcrumb-item active">PCB Table</li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);">Log Images</a></li>
+                        <li class="breadcrumb-item active">Browser</li>
                     </ul>
                     <button class="btn btn-primary btn-icon mobile_menu" type="button"><i class="zmdi zmdi-sort-amount-desc"></i></button>
                 </div>
@@ -262,124 +262,58 @@
         </div>
 
         <div class="container-fluid">
-            <!-- Thống kê lỗi -->
-            <div class="row clearfix">
-                <div class="col-lg-12">
-                     <div class="card">
-                          <div class="header">
-                              <h2><strong> Error </strong> Statistics for {{ machine_name }}</h2>
-                          </div>
-                          <div class="body">
-                               <div class="row">
-                                    <div class="col-lg-3 col-md-6">
-                                         <div class="card bg-info text-white">
-                                              <div class="body">
-                                                   <h6>Total PCB Errors</h6>
-                                                   <h3>{{ total_logs }}</h3>
-                                              </div>
-                                         </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                         <div class="card bg-danger text-white">
-                                              <div class="body">
-                                                   <h6>Most Frequent Error</h6>
-                                                   {% if max_error %}
-                                                   <span style="font-size:1.1em; font-weight:bold;">{{ max_error.label }}</span>
-                                                   <br/>
-                                                   <small>{{ max_error.percentage }}% ({{ max_error.count }} times)</small>
-                                                   {% else %}
-                                                   <h3>None</h3>
-                                                   {% endif %}
-                                              </div>
-                                         </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-12">
-                                         <table class="table table-sm table-borderless m-b-0">
-                                              <thead>
-                                                   <tr>
-                                                        <th>Error Type</th>
-                                                        <th>Count</th>
-                                                        <th>Percentage</th>
-                                                        <th>Progress</th>
-                                                   </tr>
-                                              </thead>
-                                              <tbody>
-                                                   {% for stat in error_stats %}
-                                                   <tr>
-                                                        <td>{{ stat.label }}</td>
-                                                        <td>{{ stat.count }}</td>
-                                                        <td>{{ stat.percentage }}%</td>
-                                                        <td style="width:40%;">
-                                                        <div class="progress" style="height: 10px;">
-                                                            <div class="progress-bar bg-warning"
-                                                                role="progressbar"
-                                                                aria-valuenow="{{ stat.percentage }}"
-                                                                aria-valuemin="0"
-                                                                aria-valuemax="100"
-                                                                style="width: {{ stat.percentage }}%;">
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                   </tr>
-                                                   {% endfor %}
-                                              </tbody>
-                                         </table>
-                                    </div>
-                               </div>
-                          </div>
-                     </div>
-                </div>
-            </div>
-
-            <!-- Bảng dữ liệu log PCB -->
+            <!-- File Explorer -->
             <div class="row clearfix">
                 <div class="col-lg-12">
                     <div class="card">
-                        <div class="header">
-                            <h2><strong> PCB </strong> Logs </h2>
-                            <ul class="header-dropdown">
-                                <li class="dropdown"> <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <i class="zmdi zmdi-more"></i> </a>
-                                    <ul class="dropdown-menu dropdown-menu-right slideUp">
-                                        <li><a href="javascript:void(0);">Action</a></li>
-                                        <li><a href="javascript:void(0);">Another action</a></li>
-                                        <li><a href="javascript:void(0);">Something else</a></li>
-                                    </ul>
-                                </li>
-                                <li class="remove">
-                                    <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
-                                </li>
-                            </ul>
+                        <div class="header d-flex justify-content-between align-items-center">
+                            <h2>
+                                <i class="zmdi zmdi-folder-outline" style="font-size:1.2em; margin-right:8px;"></i>
+                                <strong class="text-primary">Log Images Explorer</strong>
+                                {% if subpath %}
+                                    <span style="color: #999; font-size: 0.85em; margin-left: 10px;">/ {{ subpath }}</span>
+                                {% endif %}
+                            </h2>
+                            {% if parent_path or parent_path == '' %}
+                                {% if subpath != '' %}
+                                <a href="?path={{ parent_path }}" class="btn btn-outline-info btn-round btn-sm mb-0">
+                                    <i class="zmdi zmdi-arrow-left"></i> Lên một cấp
+                                </a>
+                                {% endif %}
+                            {% endif %}
                         </div>
                         <div class="body">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
-                                     <thead>
+                                    <thead>
                                         <tr>
-                                            <th>Product Code</th>
-                                            <th>Error Type</th>
-                                            <th>Machine</th>
-                                            <th>Date Created</th>
+                                            <th>Tên</th>
+                                            <th>Ngày sửa đổi</th>
+                                            <th>Loại</th>
+                                            <th>Kích cỡ</th>
                                         </tr>
                                     </thead>
-                                    <!-- <tfoot>
-                                        <tr>
-                                            <th>Product Code</th>
-                                            <th>Error Type</th>
-                                            <th>Machine</th>
-                                            <th>Date Created</th>
-                                        </tr>
-                                    </tfoot> -->
                                     <tbody>
-                                        {% for log in logs %}
+                                        {% for file in files %}
                                         <tr>
-                                            <td>{{ log.code_product }}</td>
                                             <td>
-                                                <span class="badge badge-warning">{{ log.get_type_error_display|default:log.type_error }}</span>
+                                                <i class="zmdi {{ file.icon }}" style="font-size: 1.25em; margin-right: 10px; vertical-align: middle;"></i>
+                                                {% if file.is_dir %}
+                                                    <a href="?path={{ file.rel_path }}" style="font-weight:bold;">{{ file.name }}</a>
+                                                {% else %}
+                                                    <a href="{% url 'serve_log_image' %}?path={{ file.rel_path }}" target="_blank" class="text-primary">{{ file.name }}</a>
+                                                {% endif %}
                                             </td>
-                                            <td>{{ log.machine.name }}</td>
-                                            <td>{{ log.created|date:"Y-m-d H:i" }}</td>
+                                            <td>{{ file.mod_time }}</td>
+                                            <td>{{ file.type }}</td>
+                                            <td>{{ file.size }}</td>
                                         </tr>
                                         {% endfor %}
+                                        {% if files|length == 0 %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">Thư mục trống.</td>
+                                        </tr>
+                                        {% endif %}
                                     </tbody>
                                 </table>
                             </div>
