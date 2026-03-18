@@ -31,134 +31,7 @@
       href="{% static 'plugins/morrisjs/morris.min.css' %}"
     />
     <link rel="stylesheet" href="{% static 'css/style.min.css' %}" />
-    <style>
-      /* === LED Indicator === */
-      .led-indicator {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        margin-right: 8px;
-        vertical-align: middle;
-        box-shadow: 0 0 6px 2px rgba(0,0,0,0.15);
-        transition: background 0.3s, box-shadow 0.3s;
-      }
-      .led-on {
-        background: #00e676;
-        box-shadow: 0 0 10px 4px #00e676aa;
-        animation: blink-led 1s infinite;
-      }
-      .led-off {
-        background: #ef5350;
-        box-shadow: 0 0 6px 2px #ef535055;
-      }
-      .led-idle {
-        background: #42a5f5;
-        box-shadow: 0 0 6px 2px #42a5f555;
-      }
-      .led-done {
-        background: #00e676;
-        box-shadow: 0 0 12px 5px #00e676cc;
-      }
-      .led-pulse-origin {
-        background: #ff9800;
-        box-shadow: 0 0 10px 4px #ff9800aa;
-        animation: blink-led 0.3s infinite;
-      }
-      @keyframes blink-led {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-      }
-      /* === X100 Control Card === */
-      .x100-card {
-        border: 2px solid #1e88e5;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #0d1b3e 0%, #1a237e 100%);
-        color: #fff;
-      }
-      .x100-card .header {
-        background: transparent;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-        padding: 12px 20px;
-      }
-      .x100-card .header h2 {
-        color: #fff;
-        font-size: 1rem;
-        margin: 0;
-      }
-      .x100-card .body {
-        padding: 16px 20px;
-      }
-      .x100-status-box {
-        background: rgba(0,0,0,0.35);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        font-size: 1.1em;
-      }
-      /* === X200 ON POWER Card === */
-      .x200-power-card {
-        border: 2px solid #00c853;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #0a2e14 0%, #1b5e20 60%, #2e7d32 100%);
-        color: #fff;
-        box-shadow: 0 0 18px 4px rgba(0,200,83,0.25);
-        transition: box-shadow 0.3s;
-      }
-      .x200-power-card.powered-on {
-        box-shadow: 0 0 30px 8px rgba(0,230,118,0.55);
-        animation: power-glow 2s infinite;
-      }
-      @keyframes power-glow {
-        0%, 100% { box-shadow: 0 0 18px 6px rgba(0,200,83,0.4); }
-        50%       { box-shadow: 0 0 36px 12px rgba(0,230,118,0.7); }
-      }
-      .x200-power-card .header {
-        background: transparent;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-        padding: 12px 20px;
-      }
-      .x200-power-card .header h2 {
-        color: #b9f6ca;
-        font-size: 1rem;
-        margin: 0;
-      }
-      .x200-power-card .body {
-        padding: 16px 20px;
-      }
-      .x200-status-box {
-        background: rgba(0,0,0,0.35);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        font-size: 1.1em;
-      }
-      .btn-power-on {
-        background: linear-gradient(135deg, #00c853, #00e676);
-        border: none;
-        color: #fff;
-        font-weight: 700;
-        font-size: 1.1em;
-        letter-spacing: 1px;
-        border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,200,83,0.45);
-        transition: all 0.25s;
-      }
-      .btn-power-on:hover {
-        background: linear-gradient(135deg, #00e676, #69f0ae);
-        box-shadow: 0 6px 24px rgba(0,230,118,0.65);
-        transform: translateY(-2px);
-        color: #fff;
-      }
-      .btn-power-on:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(0,200,83,0.3);
-      }
-    </style>
+
   </head>
 
   <body class="theme-blush">
@@ -724,27 +597,27 @@
 
               <!-- ON POWER X200 Card -->
               <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card x200-power-card" id="x200-power-card">
-                  <div class="header">
+                <div class="card bg-success text-white shadow" id="x200-power-card">
+                  <div class="header border-bottom border-light pb-2 pt-3 px-3" style="background: transparent;">
                     <h2>
-                      <i class="zmdi zmdi-power" style="color:#69f0ae; font-size:1.2em;"></i>
-                      <strong style="color:#b9f6ca;"> ON POWER — Bật Hệ Thống</strong>
-                      <small style="color:#a5d6a7; font-size:0.75em; margin-left:8px;">X200 — System Power</small>
+                      <i class="zmdi zmdi-power text-light" style="font-size:1.2em;"></i>
+                      <strong> ON POWER — Bật Hệ Thống</strong>
+                      <small class="text-light" style="font-size:0.75em; margin-left:8px;">X200 — System Power</small>
                     </h2>
                   </div>
-                  <div class="body">
-                    <div class="x200-status-box">
-                      <span class="led-indicator led-off" id="led-x200"></span>
-                      <span style="color:#c8e6c9;">Trạng thái:&nbsp;</span>
-                      <span id="x200-status-text" class="font-weight-bold" style="color:#ef9a9a;">HỆ THỐNG TẮT</span>
-                      <span class="ml-auto" style="font-size:0.8em; color:#a5d6a7;">Địa chỉ: <strong>X200</strong></span>
+                  <div class="body px-3 py-3">
+                    <div class="bg-dark rounded px-3 py-2 mb-2 d-flex align-items-center text-white" style="font-size: 1.1em; opacity: 0.85;">
+                      <span class="rounded-circle bg-danger mr-2 shadow-sm" id="led-x200" style="width: 18px; height: 18px; display: inline-block;"></span>
+                      <span class="text-light">Trạng thái:&nbsp;</span>
+                      <span id="x200-status-text" class="font-weight-bold text-danger">HỆ THỐNG TẮT</span>
+                      <span class="ml-auto text-light" style="font-size:0.8em;">Địa chỉ: <strong>X200</strong></span>
                     </div>
                     <button id="btn-x200-power"
-                            class="btn btn-power-on btn-lg btn-block waves-effect mt-2"
+                            class="btn btn-success btn-lg btn-block waves-effect mt-2 shadow"
                             onclick="HelloWorld()">
                       <i class="zmdi zmdi-power"></i>&nbsp; BẬT HỆ THỐNG (X200)
                     </button>
-                    <div class="text-center mt-2" style="font-size:0.8em; color:#a5d6a7;">
+                    <div class="text-center mt-2 text-light" style="font-size:0.8em;">
                       <i class="zmdi zmdi-info-outline"></i>
                       Nhấn để gửi lệnh X200 — kích hoạt toàn bộ hệ thống
                     </div>
@@ -752,35 +625,7 @@
                 </div>
               </div>
 
-              <!-- Origin M200 Card -->
-              <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card x100-card">
-                  <div class="header">
-                    <h2>
-                      <i class="zmdi zmdi-power" style="color:#64b5f6;"></i>
-                      <strong style="color:#fff;"> Điều Khiển Origin</strong>
-                      <small style="color:#90caf9; font-size:0.75em; margin-left:8px;">M200 — Internal Coil</small>
-                    </h2>
-                  </div>
-                  <div class="body">
-                    <div class="x100-status-box">
-                      <span class="led-indicator led-off" id="led-x100"></span>
-                      <span>Trạng thái:&nbsp;</span>
-                      <span id="x100-status-text" class="font-weight-bold text-muted">CHƯA KẾT NỐI</span>
-                      <span class="ml-auto" style="font-size:0.8em; color:#90caf9;">Địa chỉ: <strong>M200</strong></span>
-                    </div>
-                    <button id="btn-x100-toggle"
-                            class="btn btn-primary btn-lg btn-block waves-effect mt-2"
-                            onclick="toggleX100()">
-                      <i class="zmdi zmdi-home"></i> THỰC HIỆN ORIGIN (M200)
-                    </button>
-                    <div class="text-center mt-2" style="font-size:0.8em; color:#90caf9;">
-                      <i class="zmdi zmdi-info-outline"></i>
-                      Nhấn để SET M200=1 — PLC thực hiện hành trình về gốc
-                    </div>
-                  </div>
-                </div>
-              </div>
+
 
               <!-- Y1 Control Card -->
               <div class="col-lg-4 col-md-6 col-sm-12">
@@ -805,32 +650,17 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-6 mb-2">
+                        <div class="col-12 mb-2">
                             <button class="btn btn-success btn-block waves-effect" onclick="controlY1('start')" title="Ghi M100=1">
-                                <i class="zmdi zmdi-play"></i> BẬT Y1 <br><small>(M100=1)</small>
+                                <i class="zmdi zmdi-play"></i> Reset <br><small>(M5001=1)</small>
                             </button>
                         </div>
-                        <div class="col-6 mb-2">
-                            <button class="btn btn-danger btn-block waves-effect" onclick="controlY1('stop')" title="Ghi M100=0">
-                                <i class="zmdi zmdi-stop"></i> TẮT Y1 <br><small>(M100=0)</small>
-                            </button>
-                        </div>
-                        <div class="col-12 mt-2">
-                            <button class="btn btn-warning btn-block waves-effect text-white" onclick="controlY1('pulse_x15')" title="Xung X15">
-                                <i class="zmdi zmdi-flash"></i> XUNG X15 (Sườn lên)
-                            </button>
-                        </div>
-                    </div>
-                    <div class="text-center mt-3" style="font-size:0.8em; color:#e1bee7;">
-                        <i class="zmdi zmdi-info-outline"></i>
-                        START/STOP Y1 tương ứng với code Python/Flask (M100/X15).
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- ===== PLC DEBUG LOG PANEL ===== -->
             <div class="row clearfix">
               <div class="col-lg-12">
                 <div class="card" style="background:#1a1a2e; border:1px solid #333; border-radius:8px;">
@@ -840,9 +670,6 @@
                       <strong>PLC Debug Log</strong>
                       <small style="color:#666; font-size:0.75em; margin-left:8px;">Giao tiếp thực tế với PLC — Read-back verification</small>
                     </h2>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearDebugLog()" style="font-size:0.75em; padding:2px 10px;">
-                      <i class="zmdi zmdi-delete"></i> Xóa log
-                    </button>
                   </div>
                   <div class="body" style="padding:10px 16px;">
                     <div id="plc-debug-log"
@@ -872,7 +699,6 @@
                             </div>
                             <div>
                                 <button class="btn btn-outline-info btn-sm" onclick="toggleConnect()">KẾT NỐI PLC</button>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="saveConfiguration()">LƯU</button>
                             </div>
                         </div>
                     </div>
@@ -925,50 +751,38 @@
                         <div class="body">
                             <div class="row clearfix">
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Trigger delay (D500)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D500" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">Trigger delay (D500)</label>
                                         <input type="number" class="form-control" id="input_D500" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Detect time (D502)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D502" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">Detect time (D502)</label>
                                         <input type="number" class="form-control" id="input_D502" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Manual Spd (D300)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D300" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">Manual Spd (D300)</label>
                                         <input type="number" class="form-control" id="input_D300" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Auto Spd (D302)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D302" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">Auto Spd (D302)</label>
                                         <input type="number" class="form-control" id="input_D302" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">ORG Comp (D304)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D304" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">ORG Comp (D304)</label>
                                         <input type="number" class="form-control" id="input_D304" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Length Step (D306)</span>
-                                        </div>
+                                    <div class="form-group mb-3">
+                                        <label for="input_D306" style="font-size: 0.85rem; margin-bottom: 4px; color: #555;">Length Step (D306)</label>
                                         <input type="number" class="form-control" id="input_D306" value="0">
                                     </div>
                                 </div>
@@ -986,37 +800,11 @@
                         <div class="body">
                             <!-- Basic actions -->
                             <h6 class="mb-3">Basic Inputs/Outputs</h6>
-                            <button class="btn btn-outline-primary m-1" onclick="toggleX100()" id="btn-x100-inline" style="min-width:90px;">
-                              <span class="led-indicator" id="led-x100-inline" style="width:10px;height:10px;margin-right:4px;background:#ef5350;"></span>
-                              Origin <br><small>M200</small>
-                            </button>
-                            <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X150')">Trigger <br><small>X150</small></button>
-                            <button class="btn btn-warning text-white m-1" onclick="sendPlcCommand('X200')">POWER ON <br><small>X200</small></button>
                             <button class="btn btn-success m-1" onclick="sendPlcCommand('X151')">Light ON <br><small>X151</small></button>
                             <button class="btn btn-outline-secondary m-1" onclick="sendPlcCommand('X152')">Light OFF <br><small>X152</small></button>
-                            <button class="btn btn-outline-info m-1" onclick="sendPlcCommand('X304')">EMPTY MODE <br><small>X304</small></button>
-                            <button class="btn btn-outline-danger m-1" onclick="sendPlcCommand('X206')">Reset Shift <br><small>X206</small></button>
-                            <button class="btn btn-outline-danger m-1" onclick="sendPlcCommand('X205')">Reset Count <br><small>X205</small></button>
-                            <button class="btn btn-outline-secondary m-1" onclick="sendPlcCommand('M5001')">Reset <br><small>M5001</small></button>
-
-                            <h6 class="mt-4 mb-3">Servo Control</h6>
-                            <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X111')">Origin Servo <br><small>X111</small></button>
-                            <button class="btn btn-success m-1" onclick="sendPlcCommand('X110')">Servo ON <br><small>X110</small></button>
-                            <button class="btn btn-outline-secondary m-1" onclick="sendPlcCommand('M1001')">Servo OFF <br><small>M1001</small></button>
-                            <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X112')">Run 1 Step <br><small>X112</small></button>
-                            <button class="btn btn-outline-primary m-1" onclick="sendPlcCommand('X306')">Discharge <br><small>X306</small></button>
                             
                             <!-- System Status -->
-                            <div class="table-responsive mt-4">
-                                <table class="table table-bordered table-striped">
-                                    <tbody>
-                                        <tr><th>Current Position (D100)</th><td id="val_D100">0</td></tr>
-                                        <tr><th>Status PCB (D7000-D7005)</th><td id="val_status_pcb" class="text-info">Shift Output...</td></tr>
-                                        <tr><th>Ready (M80)</th><td id="val_M80" class="text-muted font-weight-bold">OFF</td></tr>
-                                        <tr><th>Alarm (M5000)</th><td id="val_M5000" class="text-muted font-weight-bold">OFF</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -1028,19 +816,7 @@
                             <h2><strong>Chế độ hoạt động</strong> (Modes)</h2>
                         </div>
                         <div class="body text-center d-flex flex-column">
-                            <button class="btn btn-secondary btn-block btn-lg waves-effect mb-3" style="background-color: #9baec3; border-color: #9baec3; color: white;" onclick="sendPlcCommand('X300')">AUTO MODE <br><small>X300</small></button>
-                            <button class="btn btn-warning text-white btn-block btn-lg waves-effect mb-3" style="background-color: #e65100; border-color: #e65100; color: white;" onclick="sendPlcCommand('X301')">MANUAL MODE <br><small>X301</small></button>
-                            <button class="btn btn-primary btn-block btn-lg waves-effect mb-4" style="background-color: #1e88e5; border-color: #1e88e5; color: white;" onclick="sendPlcCommand('X306')">BÀN XOAY <br><small>X306</small></button>
-                            
-                            <hr>
-                            
-                            <button class="btn btn-danger btn-block btn-lg waves-effect mt-4 mb-3" style="background-color: #00897b; border-color: #00897b; color: white;" onclick="sendPlcCommand('M5000')">LỖI PLC <br><small>M5000</small></button>
-                            <button class="btn btn-danger btn-block btn-lg waves-effect mb-3" style="background-color: #00897b; border-color: #00897b; color: white;" onclick="sendPlcCommand('X111')">LỖI SERVO</button>
-                            
-                            <hr>
-
-                            <button class="btn btn-dark btn-block btn-lg waves-effect mt-4 mb-3" style="background-color: #1a237e; border-color: #1a237e; color: white;">LỊCH SỬ <br><small>History</small></button>
-                            <button class="btn btn-warning btn-block btn-lg waves-effect mb-3" style="background-color: #fb8c00; border-color: #fb8c00; color: white;" onclick="sendPlcCommand('X117')">SẢN PHẨM LỖI</button>
+                            <!-- Removed onclicks -->
                         </div>
                     </div>
                 </div>

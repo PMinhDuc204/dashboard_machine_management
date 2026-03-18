@@ -105,19 +105,24 @@ def api_plc_command(request):
             data = json.loads(request.body)
             command = data.get('command')
             value = int(data.get('value', 1))
-            readback = data.get('readback', False)  # Yêu cầu đọc lại sau khi ghi
+            readback = data.get('readback', False)
             if not command:
                 return JsonResponse({'status': 'error', 'message': 'No command'})
             
-            # Ghi giá trị vào PLC
-            success = plc_comm.write_device(command, [value])
+            is_pulse = data.get('pulse', False)
+            pulse_ms = int(data.get('pulse_ms', 200))
+
+            if is_pulse:
+                success, msg = plc_comm.pulse_device(command, pulse_ms)
+            else:
+                success, msg = plc_comm.write_device(command, [value])
             
             if not success:
                 return JsonResponse({
                     'status': 'failed',
                     'command': command,
                     'write_value': value,
-                    'message': 'write_device returned False'
+                    'message': msg if 'msg' in locals() else 'Write failed'
                 })
             
             result = {
