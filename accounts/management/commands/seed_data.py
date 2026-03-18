@@ -152,25 +152,44 @@ class Command(BaseCommand):
                     seconds=random.randint(0,59),
                 )
 
-                # PASS / FAIL status
-                is_pass=random.random()<0.3
+                # Pass / Fail status determination
+                # Make majority PASS (1), some fail (0)
+                is_pass = random.random() < 0.7
                 status = 1 if is_pass else 0
-                res_disp = 1 if is_pass else 0
+                
+                # If pass, everything is 1. If fail, mix 0 and 1 ensuring some are 0.
+                def get_val(is_pass):
+                    return 1 if is_pass else (1 if random.random() > 0.4 else 0)
+                
+                caminput_val = get_val(is_pass)
+                grayfilter_val = get_val(is_pass)
+                shape01_val = get_val(is_pass)
+                pos01_val = get_val(is_pass)
+                label01_val = get_val(is_pass)
+                switch01_val = get_val(is_pass)
+                shape02_val = get_val(is_pass)
+                pos02_val = get_val(is_pass)
+                switch02_val = get_val(is_pass)
+                res_disp_val = get_val(is_pass)
+                
+                # Guarantee at least one 0 if it failed
+                if not is_pass and all(v == 1 for v in [caminput_val, grayfilter_val, shape01_val, pos01_val, label01_val, switch01_val, shape02_val, pos02_val, switch02_val, res_disp_val]):
+                    shape01_val = 0
 
                 log_objects.append(
                     Machine_Logs(
                         machine=machine,
                         process_time_ms=random.uniform(50.0, 100.0),
-                        caminput=random.randint(1,4),
-                        grayfilter=1 if random.random() > 0.5 else 0,
-                        shape01=random.choice(SHAPES),
-                        pos01=random.randint(0,100),
-                        label01=1 if random.random() > 0.2 else 0,
-                        switch01=random.choice(SWITCH_STATES),
-                        shape02=random.choice(SHAPES),
-                        pos02=random.randint(0,100),
-                        switch02=random.choice(SWITCH_STATES),
-                        resultdisplay=res_disp,
+                        caminput=caminput_val,
+                        grayfilter=grayfilter_val,
+                        shape01=shape01_val,
+                        pos01=pos01_val,
+                        label01=label01_val,
+                        switch01=switch01_val,
+                        shape02=shape02_val,
+                        pos02=pos02_val,
+                        switch02=switch02_val,
+                        resultdisplay=res_disp_val,
                         status=status,
                         created=created_time,
                     )

@@ -274,7 +274,7 @@
                                     <div class="col-lg-3 col-md-6">
                                          <div class="card bg-info text-white">
                                               <div class="body">
-                                                   <h6>Total PCB Errors</h6>
+                                                   <h6>Total PCB Checked</h6>
                                                    <h3>{{ total_logs }}</h3>
                                               </div>
                                          </div>
@@ -282,14 +282,8 @@
                                     <div class="col-lg-3 col-md-6">
                                          <div class="card bg-danger text-white">
                                               <div class="body">
-                                                   <h6>Most Frequent Error</h6>
-                                                   {% if max_error %}
-                                                   <span style="font-size:1.1em; font-weight:bold;">{{ max_error.label }}</span>
-                                                   <br/>
-                                                   <small>{{ max_error.percentage }}% ({{ max_error.count }} times)</small>
-                                                   {% else %}
-                                                   <h3>None</h3>
-                                                   {% endif %}
+                                                   <h6>Total Errors (%)</h6>
+                                                   <h3>{{ total_errors }} <small>({{ error_percentage }}%)</small></h3>
                                               </div>
                                          </div>
                                     </div>
@@ -297,7 +291,7 @@
                                          <table class="table table-sm table-borderless m-b-0">
                                               <thead>
                                                    <tr>
-                                                        <th>Error Type</th>
+                                                        <th>Status</th>
                                                         <th>Count</th>
                                                         <th>Percentage</th>
                                                         <th>Progress</th>

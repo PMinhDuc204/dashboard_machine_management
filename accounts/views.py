@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.conf import settings
 from django.http import FileResponse, HttpResponseNotFound
 from .models import *
@@ -21,37 +21,53 @@ def list_pcb(request):
     # Lấy toàn bộ logs, sắp xếp theo thời gian mới nhất (lấy tối đa 400 dòng)
     logs = Machine_Logs.objects.all().order_by('-created')[:400]
     
-    # Calculate status frequency for all logs
-    error_counts = Machine_Logs.objects.values('status').annotate(count=Count('status')).order_by('-count')
-    
     total_logs = Machine_Logs.objects.count()
-    error_stats = []
-    max_error = None
+    total_errors = Machine_Logs.objects.filter(status=0).count()
+    error_percentage = round((total_errors / total_logs * 100), 2) if total_logs > 0 else 0
     
-    for idx, e in enumerate(error_counts):
-        enum_val = e['status']
-        count = e['count']
-        percentage = (count / total_logs * 100) if total_logs > 0 else 0
-        
-        # Get readable label
-        label = str(enum_val) if enum_val else "Unknown"
-        
-        stat = {
-            'label': label,
-            'count': count,
-            'percentage': round(percentage, 2)
-        }
-        error_stats.append(stat)
-        
-        # The first item is the max error since we ordered by '-count'
-        if idx == 0:
-            max_error = stat
+    # Fields to check for errors (0 means error)
+    error_fields = {
+        'caminput': 'Cam Input',
+        'grayfilter': 'Gray Filter',
+        'shape01': 'Shape 01',
+        'pos01': 'Pos 01',
+        'label01': 'Label 01',
+        'switch01': 'Switch 01',
+        'shape02': 'Shape 02',
+        'pos02': 'Pos 02',
+        'switch02': 'Switch 02',
+        'resultdisplay': 'Result Display'
+    }
+    
+    agg_args = {
+        f"{field}_err": Count('id', filter=Q(**{field: 0})) for field in error_fields.keys()
+    }
+    
+    error_counts_dict = Machine_Logs.objects.aggregate(**agg_args)
+    
+    error_stats = []
+    
+    for field, label in error_fields.items():
+        count = error_counts_dict[f"{field}_err"]
+        if count > 0:
+            percentage = (count / total_logs * 100) if total_logs > 0 else 0
             
+            stat = {
+                'label': label,
+                'count': count,
+                'percentage': round(percentage, 2)
+            }
+            error_stats.append(stat)
+        
+    # Sort stats descending
+    error_stats.sort(key=lambda x: x['count'], reverse=True)
+    
     context = {
         'logs': logs,
         'error_stats': error_stats,
-        'max_error': max_error,
         'total_logs': total_logs,
+        'total_errors': total_errors,
+        'error_percentage': error_percentage,
         'machine_name': 'All Time Logs',
     }
     return render(request, 'list_pcb.html', context)
