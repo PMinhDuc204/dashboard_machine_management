@@ -637,22 +637,89 @@
                                     ontouchstart="controlMomentary('X111', 1, event)" 
                                     ontouchend="controlMomentary('X111', 0, event)">
                                 Origin Servo (Giữ)<br><small>X111</small>
-                            </button>                            
+                            </button>  
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X110', 1, event)" 
+                                    onmouseup="controlMomentary('X110', 0, event)" 
+                                    onmouseleave="controlMomentary('X110', 0, event)"
+                                    ontouchstart="controlMomentary('X110', 1, event)" 
+                                    ontouchend="controlMomentary('X110', 0, event)">
+                                Servo OFF (Giữ)<br><small>X110</small>
+                            </button> 
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X117', 1, event)" 
+                                    onmouseup="controlMomentary('X117', 0, event)" 
+                                    onmouseleave="controlMomentary('X117', 0, event)"
+                                    ontouchstart="controlMomentary('X117', 1, event)" 
+                                    ontouchend="controlMomentary('X117', 0, event)">
+                                Servo ON (Giữ)<br><small>X117</small>
+                            </button>
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X112', 1, event)" 
+                                    onmouseup="controlMomentary('X112', 0, event)" 
+                                    onmouseleave="controlMomentary('X112', 0, event)"
+                                    ontouchstart="controlMomentary('X112', 1, event)" 
+                                    ontouchend="controlMomentary('X112', 0, event)">
+                                Run 1 Step (Giữ)<br><small>X112</small>
+                            </button>                          
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-3 col-md-12 col-sm-12">
                     <div class="card">
                         <div class="header">
-                            <h2><strong>Chế độ hoạt động</strong> (Modes)</h2>
+                            <h2><strong>Set up State</strong> (I/O Status & Commands)</h2>
                         </div>
-                        <div class="body text-center d-flex flex-column">
-                            <!-- Removed onclicks -->
+                        <div class="body">
+                            <h6 class="mb-3">Basic Inputs/Outputs</h6>
+                            <button class="btn btn-warning m-1" 
+                                    onclick="sendPlcCommand('X304')">
+                                EMTY MODE (Bật)<br><small>X304</small>
+                            </button>
+                            <button class="btn btn-outline-warning m-1" 
+                                    onmousedown="controlMomentary('X300', 1, event)" 
+                                    onmouseup="controlMomentary('X300', 0, event)" 
+                                    onmouseleave="controlMomentary('X300', 0, event)"
+                                    ontouchstart="controlMomentary('X300', 1, event)" 
+                                    ontouchend="controlMomentary('X300', 0, event)">
+                                Auto Mode (Giữ)<br><small>X300</small>
+                            </button>
+                            <button class="btn btn-outline-warning m-1" 
+                                    onmousedown="controlMomentary('X306', 1, event)" 
+                                    onmouseup="controlMomentary('X306', 0, event)" 
+                                    onmouseleave="controlMomentary('X306', 0, event)"
+                                    ontouchstart="controlMomentary('X306', 1, event)" 
+                                    ontouchend="controlMomentary('X306', 0, event)">
+                                Dischange Mode (Giữ)<br><small>X306</small>
+                            </button>  
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X110', 1, event)" 
+                                    onmouseup="controlMomentary('X110', 0, event)" 
+                                    onmouseleave="controlMomentary('X110', 0, event)"
+                                    ontouchstart="controlMomentary('X110', 1, event)" 
+                                    ontouchend="controlMomentary('X110', 0, event)">
+                                Servo OFF (Giữ)<br><small>X110</small>
+                            </button> 
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X117', 1, event)" 
+                                    onmouseup="controlMomentary('X117', 0, event)" 
+                                    onmouseleave="controlMomentary('X117', 0, event)"
+                                    ontouchstart="controlMomentary('X117', 1, event)" 
+                                    ontouchend="controlMomentary('X117', 0, event)">
+                                Servo ON (Giữ)<br><small>X117</small>
+                            </button>
+                            <button class="btn btn-outline-primary m-1" 
+                                    onmousedown="controlMomentary('X112', 1, event)" 
+                                    onmouseup="controlMomentary('X112', 0, event)" 
+                                    onmouseleave="controlMomentary('X112', 0, event)"
+                                    ontouchstart="controlMomentary('X112', 1, event)" 
+                                    ontouchend="controlMomentary('X112', 0, event)">
+                                Run 1 Step (Giữ)<br><small>X112</small>
+                            </button>                          
                         </div>
                     </div>
-                </div>
 
+                    
+                </div>
             </div>
         </div>
     </div>

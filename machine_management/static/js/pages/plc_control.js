@@ -1,6 +1,18 @@
 let isConnected = false;
 let pollInterval = null;
+let isEditingParams = false;
+let editTimeout;
 
+document.addEventListener('DOMContentLoaded', () => {
+    $(document).on('focus', 'input[id^="input_D"]', function() {
+        isEditingParams = true;
+        clearTimeout(editTimeout);
+    });
+    $(document).on('change', 'input[id^="input_D"]', function() {
+        isEditingParams = true;
+        clearTimeout(editTimeout);
+    });
+});
 function toggleConnect() {
     const action = isConnected ? 'disconnect' : 'connect';
     fetch('/api/plc/connect/', {
@@ -114,8 +126,9 @@ function pollPlcStatus() {
                 $('#val_Y1').removeClass().addClass(data.y1 ? 'badge badge-success' : 'badge badge-secondary').css('font-size', '0.9em');
             }
             
-            let activeElem = document.activeElement;
-            if(data.params) {
+            
+            if(data.params && !isEditingParams) {
+                let activeElem = document.activeElement;
                 if(activeElem.id !== 'input_D500') $('#input_D500').val(data.params.D500);
                 if(activeElem.id !== 'input_D502') $('#input_D502').val(data.params.D502);
                 if(activeElem.id !== 'input_D300') $('#input_D300').val(data.params.D300);
@@ -187,6 +200,7 @@ function saveParameters() {
     .then(resData => {
         if (resData.status === 'ok') {
             document.getElementById('status_note').innerText = "Đã cập nhật tham số cài đặt thành công.";
+            isEditingParams = false; // allow pulling fresh data
         } else {
             document.getElementById('status_note').innerText = "⚠ Lỗi cập nhật: " + (resData.message || 'Thất bại');
         }

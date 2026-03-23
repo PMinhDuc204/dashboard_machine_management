@@ -185,11 +185,19 @@ def api_plc_write_params(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            # Example data: {"D500": 100, "D502": 200...}
+            failed_keys = []
             for key, val in data.items():
                 if key.startswith('D'):
-                    plc_comm.write_device(key, [int(val)])
-            return JsonResponse({'status': 'ok'})
+                    if val == "" or val is None:
+                        val = 0
+                    success, msg = plc_comm.write_device(key, [int(val)])
+                    if not success:
+                        failed_keys.append(f"{key}: {msg}")
+            
+            if failed_keys:
+                return JsonResponse({'status': 'error', 'message': "Lỗi ghi tham số: " + ", ".join(failed_keys)})
+                
+            return JsonResponse({'status': 'ok', 'message': 'Đã cập nhật tham số thành công'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
             
