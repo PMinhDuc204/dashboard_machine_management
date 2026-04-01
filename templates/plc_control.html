@@ -329,8 +329,6 @@
               <li><a href="{% url 'machine-detail' %}">Machine</a></li>
               <li class="active"><a href="{% url 'plc-control' %}">PLC Control</a></li>
               <li><a href="{% url 'logs_images' %}">Log Images</a></li>
-              <li><a href="events.html">Calendar</a></li>
-              <li><a href="contact.html">Contract</a></li>
             </ul>
           </li>
         </ul>
@@ -661,7 +659,17 @@
                                     ontouchstart="controlMomentary('X112', 1, event)" 
                                     ontouchend="controlMomentary('X112', 0, event)">
                                 Run 1 Step (Giữ)<br><small>X112</small>
-                            </button>                          
+                            </button>
+                            <button class="btn btn-info m-1"
+                                    onclick="pulseCommand('X15', 500)"
+                                    title="Gửi xung sườn lên 500ms đến X15">
+                                <i class="zmdi zmdi-flash"></i> Pulse X15 (Sườn Lên)<br><small>X15 — Rising Edge</small>
+                            </button>
+                            <button class="btn btn-info m-1"
+                                    onclick="pulseCommand('X14', 500)"
+                                    title="Gửi xung sườn lên 500ms đến X14">
+                                <i class="zmdi zmdi-flash"></i> Pulse X14 (Sườn Lên)<br><small>X14 — Rising Edge</small>
+                            </button>
                         </div>
                     </div>
 
