@@ -1,0 +1,6 @@
+@echo off
+echo Starting Django Server...
+start "Django Server" cmd /k ".\venv\Scripts\activate && python manage.py runserver"
+
+echo Starting Main SCADA...
+start "SCADA FX5U" cmd /k ".\venv\Scripts\activate && cd scada_fx5u_li && python main_scada.py"
