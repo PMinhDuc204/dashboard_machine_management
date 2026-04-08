@@ -122,10 +122,7 @@ class CarouselPanel(tk.Canvas):
             ]
 
             # START BUTTON
-            self.buttons = [
-                StartButton(self, center_x - self.btn_offset_x, center_y + radius + self.btn_offset_y, "START 1"),
-                StartButton(self, center_x + self.btn_offset_x, center_y + radius + self.btn_offset_y, "START 2")
-            ]
+            
 
         # ===== UPDATE STACK LAMP =====
         red = self.get_bit("Y17")
@@ -137,18 +134,6 @@ class CarouselPanel(tk.Canvas):
 
         # ===== CAMERA =====
         self.cam.update(self.get_bit("Y20"))
-
-        # ===== START BUTTON (M924) =====
-        m_state = self.get_bit("M924")
-
-        for btn in self.buttons:
-            btn.update(m_state)
-
-        # ===== RESPONSIVE BUTTON =====
-        btn_y = center_y + radius + self.btn_offset_y
-
-        self.buttons[0].move(center_x - self.btn_offset_x, btn_y)
-        self.buttons[1].move(center_x + self.btn_offset_x, btn_y)
 
         # ===== SENSOR (M925 - M927) =====
         ng_state = self.get_bit("M925")

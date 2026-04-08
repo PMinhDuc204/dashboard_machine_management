@@ -11,8 +11,4 @@ class Productivity(tk.Frame):
         self.history_label = tk.Label(self, font=("Arial", 11))
         self.history_label.pack()
 
-    def update_data(self, total, history):
-
-        self.label.config(
-            text=f"Năng suất /1h: {total} sản phẩm"
-        )
+    

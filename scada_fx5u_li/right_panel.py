@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from right_widgets.chart_defect import DefectChart
 from right_widgets.mode_buttons import ModeButtons
 from right_widgets.error_buttons import ErrorButtons
 from right_widgets.history_table import HistoryTable
@@ -10,11 +9,6 @@ class RightPanel(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent, padx=10, pady=10)
-
-        self.chart = DefectChart(self)
-        self.chart.pack(fill="x", pady=5)
-
-        ttk.Separator(self, orient="horizontal").pack(fill="x", pady=6)
 
         self.mode = ModeButtons(self)
         self.mode.pack(fill="x")
