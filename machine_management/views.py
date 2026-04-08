@@ -15,7 +15,7 @@ from django.db.models import Count
 
 # Add scada_fx5u_li to sys.path
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'scada_fx5u_li'))
-import plc_comm
+import plc_comm_api as plc_comm
 
 @login_required(login_url="/authentication/login")
 def home(request):
@@ -52,7 +52,10 @@ def api_connect_plc(request):
             
             if action == 'connect':
                 success = plc_comm.connect_plc(ip, port)
-                return JsonResponse({'status': 'ok' if success else 'failed', 'connected': plc_comm.connected})
+                if success:
+                    return JsonResponse({'status': 'ok', 'connected': True})
+                else:
+                    return JsonResponse({'status': 'failed', 'connected': False, 'message': 'Không thể kết nối (Timeout hoặc sai IP/Port)'})
             elif action == 'disconnect':
                 plc_comm.connected = False
                 return JsonResponse({'status': 'ok', 'connected': False})

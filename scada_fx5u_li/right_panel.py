@@ -1,42 +1,44 @@
 import tkinter as tk
-import plc_comm
+from tkinter import ttk
+from right_widgets.chart_defect import DefectChart
+from right_widgets.mode_buttons import ModeButtons
+from right_widgets.error_buttons import ErrorButtons
+from right_widgets.history_table import HistoryTable
+from right_widgets.production_stats import ProductionStats
 
 class RightPanel(tk.Frame):
+
     def __init__(self, parent):
         super().__init__(parent, padx=10, pady=10)
-        self.buttons = []
 
-        # 1. NHÓM ĐIỀU KHIỂN CHẾ ĐỘ
-        self.create_btn("AUTO MODE", "#94a3b8", plc_comm.set_auto, 10)
-        self.create_btn("MANUAL MODE", "#e65100", plc_comm.set_manual, 10)
-        self.create_btn("BÀN XOAY", "#2563eb", plc_comm.rotate_table, 10)
-        
-        # Đường kẻ phân cách
-        self.sep = tk.Frame(self, height=2, bg="#cbd5e1")
-        self.sep.pack(fill="x", pady=15)
+        self.chart = DefectChart(self)
+        self.chart.pack(fill="x", pady=5)
 
-        # 2. NHÓM CHỨC NĂNG PHỤ
-        self.create_btn("LỖI SERVO", "#00897b", None, 9)
-        self.create_btn("LỖI PLC", "#00897b", None, 9)
-        self.create_btn("LỊCH SỬ", "#1e3a8a", None, 9)
-        self.create_btn("SẢN PHẨM LỖI", "#d97706", None, 9)
+        ttk.Separator(self, orient="horizontal").pack(fill="x", pady=6)
 
-    def create_btn(self, text, color, cmd, font_size):
-        btn = tk.Button(self, text=text, bg=color, fg="white", 
-                        font=("Arial", font_size, "bold"), command=cmd)
-        btn.pack(fill="x", pady=4, ipady=8)
-        # Lưu lại font gốc và padding gốc để scale
-        btn.base_font_size = font_size
-        self.buttons.append(btn)
+        self.mode = ModeButtons(self)
+        self.mode.pack(fill="x")
 
+        ttk.Separator(self, orient="horizontal").pack(fill="x", pady=8)
+
+        self.errors = ErrorButtons(self)
+        self.errors.pack(fill="x")
+
+        ttk.Separator(self, orient="horizontal").pack(fill="x", pady=10)
+
+        self.history = HistoryTable(self)
+
+        # ❗ sửa ở đây để bảng không kéo giãn quá lớn
+        self.history.pack(fill="x", pady=4)
+        #Phần thêm cuối cùng - cài đặt thông số động cơ 
+        self.stats = ProductionStats(self)
+        self.stats.pack(fill="x", pady=2)
+
+    def update_data(self, data):
+        # HistoryTable tự quản lý loop riêng (update_auto)
+        # Không cần gọi add_row ở đây nữa
+        pass
+
+    # giữ hàm này để không lỗi nhưng không scale
     def scale_widgets(self, factor):
-        padding = max(int(8 * factor), 2)
-        spacing = max(int(4 * factor), 1)
-        sep_spacing = max(int(15 * factor), 5)
-        
-        for btn in self.buttons:
-            new_size = max(int(btn.base_font_size * factor), 7)
-            btn.config(font=("Arial", new_size, "bold"))
-            btn.pack_configure(pady=spacing, ipady=padding)
-        
-        self.sep.pack_configure(pady=sep_spacing)
+        pass

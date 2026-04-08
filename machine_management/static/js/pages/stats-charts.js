@@ -45,7 +45,8 @@ function updateChart() {
               ['x'].concat(labels),
               ['Số SP lỗi'].concat(values)
             ],
-            types: { 'Số SP lỗi': 'bar' },
+            type: 'line',
+            types: { 'Số SP lỗi': 'line' },
             colors: { 'Số SP lỗi': '#FF5252' }
           },
           axis: {
@@ -58,7 +59,6 @@ function updateChart() {
               min: 0
             }
           },
-          bar: { width: { ratio: 0.6 } },
           grid: { y: { show: true } },
           tooltip: {
             format: {
@@ -100,7 +100,8 @@ function updatePassChart() {
               ['x'].concat(labels),
               ['Số SP đạt'].concat(values)
             ],
-            types: { 'Số SP đạt': 'bar' },
+            type: 'line',
+            types: { 'Số SP đạt': 'line' },
             colors: { 'Số SP đạt': '#4CAF50' }
           },
           axis: {
@@ -113,7 +114,6 @@ function updatePassChart() {
               min: 0
             }
           },
-          bar: { width: { ratio: 0.6 } },
           grid: { y: { show: true } },
           tooltip: {
             format: {

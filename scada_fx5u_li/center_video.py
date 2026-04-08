@@ -1,37 +1,88 @@
 import tkinter as tk
-import math
+import plc_comm
+from plc_comm.writer import write_pulse
+
+from center_modules.carousel.carousel_core import CarouselCore
+from center_modules.carousel.carousel_renderer import CarouselRenderer
+
+from center_modules.indicators.sensor_lamp import SensorLamp
+from center_modules.indicators.camera_lamp import CameraLamp
+from center_modules.indicators.stack_lamp import StackLamp
+
+from center_modules.controls.start_buttons import StartButton
+from center_modules.controls.stack_buttons import StackButtons
+
+from center_modules.config.colors import *
 
 
 class CarouselPanel(tk.Canvas):
+
     def __init__(self, parent):
-        super().__init__(parent, bg="black", highlightthickness=0)
+        super().__init__(parent, bg=BG, highlightthickness=0)
 
-        self.rotation = 0
+        # ===== CORE =====
+        self.core = CarouselCore()
+        self.renderer = CarouselRenderer(self)
 
-        self.sensors = [
-            {"id": "10081", "label": "PROC_01"},
-            {"id": "10083", "label": "FREQ_X"},
-            {"id": "10085", "label": "VOLT_IN"},
-            {"id": "10087", "label": "SEC_STAT"},
-            {"id": "10089", "label": "MEM_POOL"},
-            {"id": "10091", "label": "SIG_STR"},
-        ]
+        # ===== UI OBJECT =====
+        self.cam = None
+        self.stack = None
+        self.ctrl = None
+        self.sensors = []
+        self.buttons = []
 
+        # ===== OFFSET =====
+        self.btn_offset_x = 120
+        self.btn_offset_y = 150
+
+        # ===== LOOP =====
         self.after(40, self.animate)
 
-    # =========================
-    # Animation Loop
-    # =========================
+    # ================= WRITE PLC =================
+    def write_plc(self, bit, value):
+        try:
+            write_pulse(bit)
+        except Exception as e:
+            print("WRITE FAIL:", e)
+
+    # ================= READ BIT =================
+    def get_bit(self, name):
+
+        bits = getattr(plc_comm, "latest_bits", [])
+
+        if not bits:
+            return False
+
+        try:
+            # ===== Y → M900+ =====
+            if name.startswith("Y"):
+                y_index = int(name[1:])
+                m_index = 900 + y_index
+                offset = m_index - 900
+
+                if offset < len(bits):
+                    return bits[offset]
+
+            # ===== M TRỰC TIẾP =====
+            elif name.startswith("M"):
+                m_index = int(name[1:])
+                offset = m_index - 900
+
+                if 0 <= offset < len(bits):
+                    return bits[offset]
+
+        except Exception as e:
+            print("GET BIT ERROR:", e)
+
+        return False
+
+    # ================= LOOP =================
     def animate(self):
-        self.rotation += 2
-        self.draw_carousel()
+        self.update_ui()
         self.after(40, self.animate)
 
-    # =========================
-    # Draw System
-    # =========================
-    def draw_carousel(self):
-        self.delete("all")
+    # ================= UI =================
+    def update_ui(self):
 
         w = self.winfo_width()
         h = self.winfo_height()
@@ -41,85 +92,70 @@ class CarouselPanel(tk.Canvas):
 
         center_x = w // 2
         center_y = h // 2
-
         radius = min(w, h) // 3
 
-        # --- Orbit circle ---
-        self.create_oval(
-            center_x - radius,
-            center_y - radius,
-            center_x + radius,
-            center_y + radius,
-            outline="#10b981",
-            dash=(4, 4)
-        )
+        # ===== DRAW CAROUSEL =====
+        self.renderer.draw(center_x, center_y, radius, self.core)
 
-        # --- CORE ---
-        self.create_oval(
-            center_x - 40,
-            center_y - 40,
-            center_x + 40,
-            center_y + 40,
-            outline="#10b981",
-            fill="#062f2a"
-        )
+        # ===== INIT (CHỈ CHẠY 1 LẦN) =====
+        if self.cam is None:
 
-        self.create_text(
-            center_x,
-            center_y,
-            text="CORE",
-            fill="white",
-            font=("Arial", 10, "bold")
-        )
+            # CAMERA
+            self.cam = CameraLamp(self, center_x, center_y - radius - 130)
 
-        # --- Sensor Nodes ---
-        for i, sensor in enumerate(self.sensors):
-            angle = (i * 360 / len(self.sensors)) + self.rotation
-            rad = math.radians(angle)
+            # STACK LAMP
+            self.stack = StackLamp(self, center_x + 200, center_y - radius - 130)
 
-            x = center_x + radius * math.cos(rad)
-            y = center_y + radius * math.sin(rad)
-
-            # Line to core
-            self.create_line(center_x, center_y, x, y, fill="#333")
-
-            node_w = 100
-            node_h = 50
-
-            x1 = x - node_w / 2
-            y1 = y - node_h / 2
-            x2 = x + node_w / 2
-            y2 = y + node_h / 2
-
-            # Node box
-            self.create_rectangle(
-                x1, y1, x2, y2,
-                outline="#10b981",
-                fill="#16181d",
-                width=2
+            # CONTROL BUTTON
+            self.ctrl = StackButtons(
+                self,
+                center_x - 200,
+                center_y - radius - 130,
+                plc_write_callback=self.write_plc
             )
 
-            # Header
-            self.create_rectangle(
-                x1, y1,
-                x2, y1 + 18,
-                fill="#10b981",
-                outline=""
-            )
+            # SENSOR
+            self.sensors = [
+                SensorLamp(self, center_x - radius - 80, center_y, "NG"),
+                SensorLamp(self, center_x - 100, center_y + radius + 20, "INPUT"),
+                SensorLamp(self, center_x + 100, center_y + radius + 20, "OUTPUT")
+            ]
 
-            self.create_text(
-                (x1 + x2) / 2,
-                y1 + 9,
-                text=f"ID: {sensor['id']}",
-                fill="black",
-                font=("Arial", 7, "bold")
-            )
+            # START BUTTON
+            self.buttons = [
+                StartButton(self, center_x - self.btn_offset_x, center_y + radius + self.btn_offset_y, "START 1"),
+                StartButton(self, center_x + self.btn_offset_x, center_y + radius + self.btn_offset_y, "START 2")
+            ]
 
-            # Label
-            self.create_text(
-                (x1 + x2) / 2,
-                y1 + 35,
-                text=sensor["label"],
-                fill="white",
-                font=("Arial", 9)
-            )
+        # ===== UPDATE STACK LAMP =====
+        red = self.get_bit("Y17")
+        yellow = self.get_bit("Y14")
+        green = self.get_bit("Y16")
+
+        self.stack.update(red, yellow, green)
+        self.ctrl.update(red, yellow, green)
+
+        # ===== CAMERA =====
+        self.cam.update(self.get_bit("Y20"))
+
+        # ===== START BUTTON (M924) =====
+        m_state = self.get_bit("M924")
+
+        for btn in self.buttons:
+            btn.update(m_state)
+
+        # ===== RESPONSIVE BUTTON =====
+        btn_y = center_y + radius + self.btn_offset_y
+
+        self.buttons[0].move(center_x - self.btn_offset_x, btn_y)
+        self.buttons[1].move(center_x + self.btn_offset_x, btn_y)
+
+        # ===== SENSOR (M925 - M927) =====
+        ng_state = self.get_bit("M925")
+        input_state = self.get_bit("M926")
+        output_state = self.get_bit("M927")
+
+        if len(self.sensors) >= 3:
+            self.sensors[0].update(ng_state)
+            self.sensors[1].update(input_state)
+            self.sensors[2].update(output_state)
