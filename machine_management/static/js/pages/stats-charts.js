@@ -12,8 +12,6 @@ function updateProductStats() {
       document.getElementById('stat-total').innerHTML = total + ' <small class="info">sản phẩm</small>';
       document.getElementById('stat-errors').innerHTML = errors + ' <small class="info">sản phẩm</small>';
       document.getElementById('stat-pass').innerHTML = pass + ' <small class="info">sản phẩm</small>';
-
-      // Update progress bars
       var errPct = total > 0 ? Math.round((errors / total) * 100) : 0;
       var passPct = total > 0 ? Math.round((pass / total) * 100) : 0;
       document.getElementById('prog-errors').style.width = errPct + '%';
@@ -21,11 +19,7 @@ function updateProductStats() {
     })
     .catch(function(err) { console.warn('Stats API error:', err); });
 }
-
-// Initialize on load
 updateProductStats();
-
-// Auto-refresh every 30 seconds
 setInterval(function() {
   updateProductStats();
 }, 30000);

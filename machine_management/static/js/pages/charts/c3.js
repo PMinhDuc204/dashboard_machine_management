@@ -154,7 +154,7 @@ $(function() {
                 .then(response => response.json())
                 .then(res => {
                     var chart = c3.generate({
-                        bindto: '#chart-area-spline-sracked', // id of chart wrapper
+                        bindto: '#chart-area-spline-sracked',
                         data: {
                             columns: [
                                 ['data1'].concat(res.data_total),
@@ -308,7 +308,7 @@ $(function() {
                 .then(response => response.json())
                 .then(res => {
                     var chart = c3.generate({
-                        bindto: '#chart-area-step', // id of chart wrapper
+                        bindto: '#chart-area-step',
                         data: {
                             columns: [
                                 ['data1'].concat(res.data_total),

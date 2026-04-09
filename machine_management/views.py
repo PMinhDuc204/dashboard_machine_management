@@ -208,16 +208,13 @@ def api_plc_write_params(request):
 
 @login_required(login_url="/authentication/login")
 def api_product_stats(request):
-    """API trả về thống kê tổng SP, SP lỗi, SP đạt trong 10 giờ gần nhất."""
     now = timezone.now()
     start_time = now - timedelta(hours=10)
 
-    # Tính toán thống kê tổng thể từ database
     total_pass = Machine_Logs.objects.filter(status=1).count()
     total_errors = Machine_Logs.objects.filter(status=0).count()
     total_all = total_pass + total_errors
 
-    # Trong 10h gần nhất
     errors_10h = Machine_Logs.objects.filter(created__gte=start_time, status=0).count()
     
     return JsonResponse({
@@ -232,7 +229,6 @@ def api_product_stats(request):
 
 @login_required(login_url="/authentication/login")
 def api_weekly_stats(request):
-    """API trả về thống kê 7 ngày bao gồm hôm nay."""
     now = timezone.now()
     start_time = now - timedelta(days=6)
     start_time = start_time.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -243,7 +239,6 @@ def api_weekly_stats(request):
     grouped_pass = logs.filter(status=1).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
     grouped_fail = logs.filter(status=0).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
     
-    # Định dạng tháng/ngày ngắn gọn để hiển thị đẹp
     total_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_total}
     pass_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_pass}
     fail_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_fail}
