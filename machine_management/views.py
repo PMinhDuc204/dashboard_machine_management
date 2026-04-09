@@ -74,14 +74,12 @@ def api_plc_status(request):
         if not data:
             data = {}
             
-        # Also read some devices like D100, M80, M5000
         d100 = plc_comm.read_device('D100')
         m80 = plc_comm.read_device('M80')
         m5000 = plc_comm.read_device('M5000')
         
-        # Read parameters from PLC: D500, D502, D300, D302, D304, D306
-        d_params = plc_comm.read_device('D300', 20)  # Read D300 to D319
-        d_params2 = plc_comm.read_device('D500', 3)  # Read D500 to D502
+        d_params = plc_comm.read_device('D300', 20)
+        d_params2 = plc_comm.read_device('D500', 3)
         
         status = {
             'status': 'ok',
