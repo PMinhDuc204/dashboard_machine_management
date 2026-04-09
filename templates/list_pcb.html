@@ -160,36 +160,7 @@
                                          </div>
                                     </div>
                                     <div class="col-lg-6 col-md-12">
-                                         <table class="table table-sm table-borderless m-b-0">
-                                              <thead>
-                                                   <tr>
-                                                        <th>Status</th>
-                                                        <th>Count</th>
-                                                        <th>Percentage</th>
-                                                        <th>Progress</th>
-                                                   </tr>
-                                              </thead>
-                                              <tbody>
-                                                   {% for stat in error_stats %}
-                                                   <tr>
-                                                        <td>{{ stat.label }}</td>
-                                                        <td>{{ stat.count }}</td>
-                                                        <td>{{ stat.percentage }}%</td>
-                                                        <td style="width:40%;">
-                                                        <div class="progress" style="height: 10px;">
-                                                            <div class="progress-bar bg-warning"
-                                                                role="progressbar"
-                                                                aria-valuenow="{{ stat.percentage }}"
-                                                                aria-valuemin="0"
-                                                                aria-valuemax="100"
-                                                                style="width: {{ stat.percentage }}%;">
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                   </tr>
-                                                   {% endfor %}
-                                              </tbody>
-                                         </table>
+                                         <canvas id="errorBarChart" height="150"></canvas>
                                     </div>
                                </div>
                           </div>
@@ -303,6 +274,44 @@
 
 <script src="{% static 'bundles/mainscripts.bundle.js' %}"></script>
 <script src="{% static 'js/pages/tables/jquery-datatable.js' %}"></script>
+<script src="{% static 'plugins/chartjs/Chart.bundle.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        var ctx = document.getElementById('errorBarChart').getContext('2d');
+        var labels = [];
+        var data = [];
+        
+        {% for stat in error_stats %}
+            labels.push("{{ stat.label }}");
+            data.push({{ stat.count }});
+        {% endfor %}
+        
+        var errorBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Error Count',
+                    data: data,
+                    backgroundColor: 'rgba(255, 193, 7, 0.5)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    });
+</script>
 </body>
 
 

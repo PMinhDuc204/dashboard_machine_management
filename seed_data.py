@@ -57,8 +57,6 @@ def seed():
                 resultdisplay=1,
                 status=status
             )
-            # Setting created field here does not work with bulk_create if auto_now_add is set,
-            # but Machine_Logs 'created' uses default=timezone.now, so we can override it.
             log.created = log_time
             log.updated = log_time
             logs_to_create.append(log)
