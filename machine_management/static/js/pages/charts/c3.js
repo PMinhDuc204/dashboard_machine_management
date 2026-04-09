@@ -150,43 +150,48 @@ $(function() {
             });
         });
         $(document).ready(function(){
-            var chart = c3.generate({
-                bindto: '#chart-area-spline-sracked', // id of chart wrapper
-                data: {
-                    columns: [
-                        // each columns data
-                        ['data1', 11, 8, 15, 18, 19, 17],
-                        ['data2', 7, 7, 5, 7, 9, 12]
-                    ],
-                    type: 'area-spline', // default type of chart
-                    groups: [
-                        [ 'data1', 'data2']
-                    ],
-                    colors: {
-                        'data1': Aero.colors["blue"],
-                        'data2': Aero.colors["cyan"]
-                    },
-                    names: {
-                        // name of each serie
-                        'data1': 'Maximum',
-                        'data2': 'Minimum'
-                    }
-                },
-                axis: {
-                    x: {
-                        type: 'category',
-                        // name of each category
-                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-                    },
-                },
-                legend: {
-                    show: true, //hide legend
-                },
-                padding: {
-                    bottom: 0,
-                    top: 0
-                },
-            });
+            fetch('/api/stats/weekly/')
+                .then(response => response.json())
+                .then(res => {
+                    var chart = c3.generate({
+                        bindto: '#chart-area-spline-sracked', // id of chart wrapper
+                        data: {
+                            columns: [
+                                ['data1'].concat(res.data_total),
+                                ['data2'].concat(res.data_pass),
+                                ['data3'].concat(res.data_fail)
+                            ],
+                            type: 'area-spline',
+                            groups: [
+                                [ 'data1', 'data2', 'data3']
+                            ],
+                            colors: {
+                                'data1': Aero.colors["gray"] || '#9e9e9e',
+                                'data2': Aero.colors["teal"] || '#009688',
+                                'data3': Aero.colors["lime"] || '#cddc39'
+                            },
+                            names: {
+                                'data1': 'Total Products',
+                                'data2': 'Products Pass',
+                                'data3': 'Products Fail'
+                            }
+                        },
+                        axis: {
+                            x: {
+                                type: 'category',
+                                categories: res.labels
+                            },
+                        },
+                        legend: {
+                            show: true,
+                        },
+                        padding: {
+                            bottom: 0,
+                            top: 0
+                        },
+                    });
+                })
+                .catch(err => console.error("Error fetching stats:", err));
         });
         $(document).ready(function(){
             var chart = c3.generate({
@@ -299,40 +304,42 @@ $(function() {
             });
         });
         $(document).ready(function(){
-            var chart = c3.generate({
-                bindto: '#chart-area-step', // id of chart wrapper
-                data: {
-                    columns: [
-                        // each columns data
-                        ['data1', 11, 8, 15, 18, 19, 17],
-                        ['data2', 7, 7, 5, 7, 9, 12]
-                    ],
-                    type: 'area-step', // default type of chart
-                    colors: {
-                        'data1': Aero.colors["blue"],
-                        'data2': Aero.colors["cyan"]
-                    },
-                    names: {
-                        // name of each serie
-                        'data1': 'Maximum',
-                        'data2': 'Minimum'
-                    }
-                },
-                axis: {
-                    x: {
-                        type: 'category',
-                        // name of each category
-                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-                    },
-                },
-                legend: {
-                    show: true, //hide legend
-                },
-                padding: {
-                    bottom: 0,
-                    top: 0
-                },
-            });
+            fetch('/api/stats/weekly/')
+                .then(response => response.json())
+                .then(res => {
+                    var chart = c3.generate({
+                        bindto: '#chart-area-step', // id of chart wrapper
+                        data: {
+                            columns: [
+                                ['data1'].concat(res.data_total),
+                                ['data2'].concat(res.data_pass)
+                            ],
+                            type: 'area-step',
+                            colors: {
+                                'data1': Aero.colors["pink"] || '#e91e63',
+                                'data2': Aero.colors["orange"] || '#ff9800'
+                            },
+                            names: {
+                                'data1': 'Total Products',
+                                'data2': 'Products Pass'
+                            }
+                        },
+                        axis: {
+                            x: {
+                                type: 'category',
+                                categories: res.labels
+                            },
+                        },
+                        legend: {
+                            show: true,
+                        },
+                        padding: {
+                            bottom: 0,
+                            top: 0
+                        },
+                    });
+                })
+                .catch(err => console.error("Error fetching stats:", err));
         });
         $(document).ready(function(){
             var chart = c3.generate({

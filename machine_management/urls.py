@@ -39,9 +39,8 @@ urlpatterns = [
     path('api/plc/read_device/', views.api_plc_read_device, name='api_plc_read_device'),
 
     # Stats API endpoints
-    path('api/stats/errors/', views.api_error_stats, name='api_error_stats'),
     path('api/stats/products/', views.api_product_stats, name='api_product_stats'),
-    path('api/stats/pass/', views.api_pass_stats, name='api_pass_stats'),
+    path('api/stats/weekly/', views.api_weekly_stats, name='api_weekly_stats'),
     
     re_path(r'^.*$', page_not_found, name='page_not_found'),
 ]

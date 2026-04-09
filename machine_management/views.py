@@ -207,103 +207,6 @@ def api_plc_write_params(request):
     return JsonResponse({'status': 'failed'})
 
 @login_required(login_url="/authentication/login")
-def api_error_stats(request):
-    time_filter = request.GET.get('filter', 'realtime')
-    now = timezone.now()
-    
-    data = []
-    labels = []
-    
-    logs = Machine_Logs.objects.all()
-
-    # For Distribution chart
-    dist_logs = logs
-
-    if time_filter == 'realtime':
-        # Show last 10 hours, grouped by hour
-        start_time = now - timedelta(hours=9)
-        start_time = start_time.replace(minute=0, second=0, microsecond=0)
-        logs = logs.filter(created__gte=start_time)
-        dist_logs = logs
-        grouped = logs.annotate(hour=TruncHour('created')).values('hour').annotate(count=Count('id')).order_by('hour')
-        hour_map = {item['hour'].strftime('%H:00'): item['count'] for item in grouped}
-        for i in range(9, -1, -1):
-            h = now - timedelta(hours=i)
-            h_str = h.strftime('%H:00')
-            labels.append(h_str)
-            data.append(hour_map.get(h_str, 0))
-
-    elif time_filter == 'shift':
-        today = now.date()
-        shift1_start = timezone.make_aware(timezone.datetime.combine(today, timezone.datetime.min.time())).replace(hour=6)
-        shift2_start = shift1_start.replace(hour=14)
-        shift3_start = shift1_start.replace(hour=22)
-        
-        s1_count = logs.filter(created__gte=shift1_start, created__lt=shift2_start).count()
-        s2_count = logs.filter(created__gte=shift2_start, created__lt=shift3_start).count()
-        s3_count = logs.filter(created__gte=shift3_start).count() + logs.filter(created__lt=shift1_start, created__year=today.year, created__month=today.month, created__day=today.day).count()
-        
-        labels = ['Shift 1 (06-14)', 'Shift 2 (14-22)', 'Shift 3 (22-06)']
-        data = [s1_count, s2_count, s3_count]
-        
-        dist_logs = logs.filter(created__year=today.year, created__month=today.month, created__day=today.day)
-
-    elif time_filter == 'hour':
-        start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        logs = logs.filter(created__gte=start_time)
-        dist_logs = logs
-        grouped = logs.annotate(hour=TruncHour('created')).values('hour').annotate(count=Count('id')).order_by('hour')
-        hour_map = {item['hour'].hour: item['count'] for item in grouped}
-        for i in range(24):
-            labels.append(f"{i:02d}:00")
-            data.append(hour_map.get(i, 0))
-
-    elif time_filter == '10hour':
-        start_time = now - timedelta(hours=9)
-        start_time = start_time.replace(minute=0, second=0, microsecond=0)
-        
-        logs = logs.filter(created__gte=start_time)
-        dist_logs = logs
-        grouped = logs.annotate(
-            hour=TruncHour('created')
-        ).values('hour').annotate(count=Count('id')).order_by('hour')
-        
-        hour_map = {item['hour'].strftime('%H:00'): item['count'] for item in grouped}
-        for i in range(9, -1, -1):
-            h = now - timedelta(hours=i)
-            h_str = h.strftime('%H:00')
-            labels.append(h_str)
-            data.append(hour_map.get(h_str, 0))
-
-    elif time_filter == 'day':
-        start_time = now - timedelta(days=6)
-        start_time = start_time.replace(hour=0, minute=0, second=0, microsecond=0)
-        logs = logs.filter(created__gte=start_time)
-        dist_logs = logs
-        grouped = logs.annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
-        day_map = {item['day'].strftime('%Y-%m-%d'): item['count'] for item in grouped}
-        for i in range(6, -1, -1):
-            d = now - timedelta(days=i)
-            d_str = d.strftime('%m-%d')
-            labels.append(d_str)
-            data.append(day_map.get(d_str, 0))
-            
-    # Chart 2: Error Distribution
-    error_types = dist_logs.values('status').annotate(count=Count('id')).order_by('-count')
-    
-    dist_labels = []
-    dist_data = []
-    for e in error_types:
-        val = e['status']
-        dist_labels.append(str(val) if val else "Unknown")
-        dist_data.append(e['count'])
-
-    return JsonResponse({
-        'trend': {'labels': labels, 'data': data},
-        'distribution': {'labels': dist_labels, 'data': dist_data}
-    })
-
-@login_required(login_url="/authentication/login")
 def api_product_stats(request):
     """API trả về thống kê tổng SP, SP lỗi, SP đạt trong 10 giờ gần nhất."""
     now = timezone.now()
@@ -325,34 +228,42 @@ def api_product_stats(request):
         'period_errors': errors_10h,
     })
 
+
+
 @login_required(login_url="/authentication/login")
-def api_pass_stats(request):
-    """API trả về thống kê SP đạt theo 10 giờ gần nhất, phân bổ theo giờ."""
+def api_weekly_stats(request):
+    """API trả về thống kê 7 ngày bao gồm hôm nay."""
     now = timezone.now()
-    start_time = now - timedelta(hours=9)
-    start_time = start_time.replace(minute=0, second=0, microsecond=0)
+    start_time = now - timedelta(days=6)
+    start_time = start_time.replace(hour=0, minute=0, second=0, microsecond=0)
     
-    # Lấy tất cả logs PASS trong 10 giờ gần nhất
-    pass_logs = Machine_Logs.objects.filter(
-        created__gte=start_time,
-        status=1
-    )
+    logs = Machine_Logs.objects.filter(created__gte=start_time)
     
-    # Nhóm theo giờ
-    grouped = pass_logs.annotate(
-        hour=TruncHour('created')
-    ).values('hour').annotate(count=Count('id')).order_by('hour')
+    grouped_total = logs.annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
+    grouped_pass = logs.filter(status=1).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
+    grouped_fail = logs.filter(status=0).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
     
-    hour_map = {item['hour'].strftime('%H:00'): item['count'] for item in grouped}
+    # Định dạng tháng/ngày ngắn gọn để hiển thị đẹp
+    total_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_total}
+    pass_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_pass}
+    fail_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_fail}
     
     labels = []
-    data = []
-    for i in range(9, -1, -1):
-        h = now - timedelta(hours=i)
-        h_str = h.strftime('%H:00')
-        labels.append(h_str)
-        data.append(hour_map.get(h_str, 0))
+    data_total = []
+    data_pass = []
+    data_fail = []
     
+    for i in range(6, -1, -1):
+        d = now - timedelta(days=i)
+        d_str = d.strftime('%d-%m')
+        labels.append(d_str)
+        data_total.append(total_map.get(d_str, 0))
+        data_pass.append(pass_map.get(d_str, 0))
+        data_fail.append(fail_map.get(d_str, 0))
+        
     return JsonResponse({
-        'trend': {'labels': labels, 'data': data}
+        'labels': labels,
+        'data_total': data_total,
+        'data_pass': data_pass,
+        'data_fail': data_fail
     })
