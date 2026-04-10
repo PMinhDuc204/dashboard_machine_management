@@ -193,7 +193,6 @@
                                      <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Status</th>
                                             <th>Time(ms)</th>
                                             <th>Cam Input</th>
                                             <th>Gray Filter</th>
@@ -211,7 +210,6 @@
                                     <tfoot>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Status</th>
                                             <th>Time(ms)</th>
                                             <th>Cam Input</th>
                                             <th>Gray Filter</th>
@@ -230,11 +228,6 @@
                                         {% for log in logs %}
                                         <tr>
                                             <td>{{ log.id }}</td>
-                                            <td>
-                                                <span class="badge {% if log.status == 1 %}badge-success{% else %}badge-warning{% endif %}">
-                                                    {% if log.status == 1 %}PASS{% elif log.status == 0 %}FAIL{% else %}N/A{% endif %}
-                                                </span>
-                                            </td>
                                             <td>{{ log.process_time_ms|default:0 }}</td>
                                             <td>{{ log.caminput|default:"-" }}</td>
                                             <td>{{ log.grayfilter|default:"-" }}</td>
