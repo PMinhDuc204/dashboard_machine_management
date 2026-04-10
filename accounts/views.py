@@ -32,7 +32,7 @@ ERROR_FIELDS = {
 
 def list_pcb(request):
     # Lấy toàn bộ logs, sắp xếp theo thời gian mới nhất (lấy tối đa 400 dòng)
-    logs = Machine_Logs.objects.all().order_by('-created')[:400]
+    logs = Machine_Logs.objects.all().order_by('-created')
     
     total_logs = Machine_Logs.objects.count()
     error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
