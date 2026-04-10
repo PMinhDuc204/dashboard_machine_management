@@ -1,4 +1,4 @@
-﻿$(function() {
+$(function() {
     "use strict";
     initSparkline();
     initC3Chart();    
@@ -83,41 +83,7 @@ function initC3Chart() {
                 },
             });
         });
-        $(document).ready(function(){
-            var chart = c3.generate({
-                bindto: '#chart-area-step',
-                data: {
-                    columns: [
-                        ['data1', 11, 8, 15, 7, 11, 13],
-                        ['data2', 7, 7, 5, 7, 9, 12]
-                    ],
-                    type: 'area-step',
-                    colors: {
-                        'data1': Aero.colors["pink"],
-                        'data2': Aero.colors["orange"]
-                    },
-                    names: {
-                        // name of each serie
-                        'data1': 'Today',
-                        'data2': 'month'
-                    }
-                },
-                axis: {
-                    x: {
-                        type: 'category',
-                        // name of each category
-                        categories: ['1', '2', '3', '4', '5', '6']
-                    },
-                },
-                legend: {
-                    show: true, //hide legend
-                },
-                padding: {
-                    bottom: 0,
-                    top: 0
-                },
-            });
-        });
+
 }, 500);
 }
 setTimeout(function(){

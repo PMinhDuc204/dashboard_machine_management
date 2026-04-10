@@ -304,7 +304,7 @@ $(function() {
             });
         });
         $(document).ready(function(){
-            fetch('/api/stats/weekly/')
+            fetch('/api/stats/monthly/')
                 .then(response => response.json())
                 .then(res => {
                     var chart = c3.generate({
@@ -312,16 +312,22 @@ $(function() {
                         data: {
                             columns: [
                                 ['data1'].concat(res.data_total),
-                                ['data2'].concat(res.data_pass)
+                                ['data2'].concat(res.data_pass),
+                                ['data3'].concat(res.data_fail)
                             ],
-                            type: 'area-step',
+                            type: 'area-spline',
+                            groups: [
+                                [ 'data1', 'data2', 'data3']
+                            ],
                             colors: {
-                                'data1': Aero.colors["pink"] || '#e91e63',
-                                'data2': Aero.colors["orange"] || '#ff9800'
+                                'data1': Aero.colors["yellow"] || '#9ec023ff',
+                                'data2': Aero.colors["green"] || '#1fdf0eff',
+                                'data3': Aero.colors["red"] || '#dc3939ff'
                             },
                             names: {
                                 'data1': 'Total Products',
-                                'data2': 'Products Pass'
+                                'data2': 'Products Pass',
+                                'data3': 'Products Fail'
                             }
                         },
                         axis: {

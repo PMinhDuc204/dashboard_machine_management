@@ -10,7 +10,7 @@ import sys
 from accounts.models import Machine_Logs
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models.functions import TruncMinute, TruncHour, TruncDay
+from django.db.models.functions import TruncMinute, TruncHour, TruncDay, TruncMonth
 from django.db.models import Count
 
 # Add scada_fx5u_li to sys.path
@@ -253,6 +253,52 @@ def api_weekly_stats(request):
         data_total.append(total_map.get(d_str, 0))
         data_pass.append(pass_map.get(d_str, 0))
         data_fail.append(fail_map.get(d_str, 0))
+        
+    return JsonResponse({
+        'labels': labels,
+        'data_total': data_total,
+        'data_pass': data_pass,
+        'data_fail': data_fail
+    })
+
+
+@login_required(login_url="/authentication/login")
+def api_monthly_stats(request):
+    now = timezone.now()
+    
+    # Get to 12 months ago (start of that month)
+    start_date = now
+    for _ in range(11):
+        start_date = (start_date.replace(day=1) - timedelta(days=1))
+    start_date = start_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    logs = Machine_Logs.objects.filter(created__gte=start_date)
+    
+    grouped_total = logs.annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
+    grouped_pass = logs.filter(status=1).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
+    grouped_fail = logs.filter(status=0).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
+    
+    total_map = {item['month'].strftime('%m-%Y'): item['count'] for item in grouped_total if item['month']}
+    pass_map = {item['month'].strftime('%m-%Y'): item['count'] for item in grouped_pass if item['month']}
+    fail_map = {item['month'].strftime('%m-%Y'): item['count'] for item in grouped_fail if item['month']}
+    
+    labels = []
+    data_total = []
+    data_pass = []
+    data_fail = []
+    
+    for i in range(11, -1, -1):
+        m = now.month - i
+        y = now.year
+        if m <= 0:
+            m += 12
+            y -= 1
+            
+        m_str = f"{m:02d}-{y}"
+        labels.append(m_str)
+        data_total.append(total_map.get(m_str, 0))
+        data_pass.append(pass_map.get(m_str, 0))
+        data_fail.append(fail_map.get(m_str, 0))
         
     return JsonResponse({
         'labels': labels,
