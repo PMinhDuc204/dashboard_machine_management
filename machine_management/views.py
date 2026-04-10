@@ -11,7 +11,7 @@ from accounts.models import Machine_Logs
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncMinute, TruncHour, TruncDay, TruncMonth
-from django.db.models import Count
+from django.db.models import Count, Q
 
 # Add scada_fx5u_li to sys.path
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'scada_fx5u_li'))
@@ -209,11 +209,13 @@ def api_product_stats(request):
     now = timezone.now()
     start_time = now - timedelta(hours=10)
 
-    total_pass = Machine_Logs.objects.filter(status=1).count()
-    total_errors = Machine_Logs.objects.filter(status=-1).count()
+    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
+    
+    total_errors = Machine_Logs.objects.filter(error_condition).count()
+    total_pass = Machine_Logs.objects.exclude(error_condition).count()
     total_all = total_pass + total_errors
 
-    errors_10h = Machine_Logs.objects.filter(created__gte=start_time, status=-1).count()
+    errors_10h = Machine_Logs.objects.filter(created__gte=start_time).filter(error_condition).count()
     
     return JsonResponse({
         'total': total_all,
@@ -233,9 +235,11 @@ def api_weekly_stats(request):
     
     logs = Machine_Logs.objects.filter(created__gte=start_time)
     
+    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
+    
     grouped_total = logs.annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
-    grouped_pass = logs.filter(status=1).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
-    grouped_fail = logs.filter(status=-1).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
+    grouped_pass = logs.exclude(error_condition).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
+    grouped_fail = logs.filter(error_condition).annotate(day=TruncDay('created')).values('day').annotate(count=Count('id')).order_by('day')
     
     total_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_total}
     pass_map = {item['day'].strftime('%d-%m'): item['count'] for item in grouped_pass}
@@ -274,9 +278,11 @@ def api_monthly_stats(request):
     
     logs = Machine_Logs.objects.filter(created__gte=start_date)
     
+    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
+
     grouped_total = logs.annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
-    grouped_pass = logs.filter(status=1).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
-    grouped_fail = logs.filter(status=-1).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
+    grouped_pass = logs.exclude(error_condition).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
+    grouped_fail = logs.filter(error_condition).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('id')).order_by('month')
     
     total_map = {item['month'].strftime('%m-%Y'): item['count'] for item in grouped_total if item['month']}
     pass_map = {item['month'].strftime('%m-%Y'): item['count'] for item in grouped_pass if item['month']}

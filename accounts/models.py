@@ -48,13 +48,12 @@ class Machine_Logs(models.Model):
     totalarea01 = models.IntegerField(null=True, blank=True)
     numoflabels01 = models.IntegerField(null=True, blank=True)
     resultdisplay = models.IntegerField(null=True, blank=True)
-    status = models.IntegerField(null=True, blank=True)
     
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Log ID: {self.id} - Status: {self.status}"
+        return f"Log ID: {self.id} - Result: {self.resultdisplay}"
 
 class Machine_Logs_Images(models.Model):
     image_url = models.ImageField(upload_to='machine_logs_images')

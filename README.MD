@@ -53,3 +53,7 @@
     ```bash
     python manage.py import_csv logdata.csv
     ```
+7. **Refresh the page**
+    ```bash
+    python manage.py flush
+    ```

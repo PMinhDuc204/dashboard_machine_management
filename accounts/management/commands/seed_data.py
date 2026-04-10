@@ -153,7 +153,6 @@ class Command(BaseCommand):
                 # Pass / Fail status determination
                 # Make majority PASS (1), some fail (0)
                 is_pass = random.random() < 0.7
-                status = 1 if is_pass else 0
                 
                 # If pass, all 10 checking values are 1.
                 # If fail, mix 0 and 1 ensuring at least one is 0.
@@ -180,7 +179,6 @@ class Command(BaseCommand):
                         pos02=pos02_val,
                         switch02=switch02_val,
                         resultdisplay=res_disp_val,
-                        status=status,
                         created=created_time,
                     )
                 )

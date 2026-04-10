@@ -35,10 +35,11 @@ def list_pcb(request):
     logs = Machine_Logs.objects.all().order_by('-created')[:400]
     
     total_logs = Machine_Logs.objects.count()
-    total_errors = Machine_Logs.objects.filter(status=0).count()
+    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
+    total_errors = Machine_Logs.objects.filter(error_condition).count()
     error_percentage = round((total_errors / total_logs * 100), 2) if total_logs > 0 else 0
     
-    agg_args = {f"{f}_err": Count('id', filter=Q(**{f: 0})) for f in ERROR_FIELDS}
+    agg_args = {f"{f}_err": Count('id', filter=Q(**{f: -1})) for f in ERROR_FIELDS}
     error_counts_dict = Machine_Logs.objects.aggregate(**agg_args)
     
     error_stats = [

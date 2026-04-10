@@ -94,7 +94,6 @@ class CSVHandler(FileSystemEventHandler):
                         totalarea01=parse_int(row.get('totalarea01')),
                         numoflabels01=parse_int(row.get('numoflabels01')),
                         resultdisplay=parse_int(row.get('resultdisplay')),
-                        status=parse_int(row.get('status')),
                     )
                     success_count += 1
                 except Exception as e:
