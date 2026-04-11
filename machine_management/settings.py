@@ -24,17 +24,13 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-imo1@b*=q*o1c3grq)weq^-y36y*x!43xlrqmsz-)qivfq4j%d'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'django-insecure-imo1@b*=q*o1c3grq)weq^-y36y*x!43xlrqmsz-)qivfq4j%d')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == "True"
 
-ALLOWED_HOSTS = ['*']
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://phuminhduc.site",
-    "https://www.phuminhduc.site",
-]
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",") if host.strip()]
+CSRF_TRUSTED_ORIGINS = [url.strip() for url in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "http://localhost:8000").split(",") if url.strip()]
 
 # Application definition
 
@@ -84,19 +80,18 @@ WSGI_APPLICATION = 'machine_management.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'machine_management',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+     'default': {
+         'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
+         'NAME': os.getenv('DATABASE_NAME', 'machine_management'),
+         'USER': os.getenv('DATABASE_USERNAME', 'postgres'),
+         'PASSWORD': os.getenv('DATABASE_PASSWORD', '123456'),
+         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+         'PORT': os.getenv('DATABASE_PORT', '5432'),
+     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -119,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -130,21 +125,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Used only by collectstatic for production
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / 'machine_management' / 'static',
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email settings
-# TODO: Configure SMTP to send real emails.
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
