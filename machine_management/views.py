@@ -163,7 +163,6 @@ def api_plc_command(request):
 
 @csrf_exempt
 def api_plc_read_device(request):
-    """Đọc trạng thái một địa chỉ PLC đơn lẻ (VD: X100, M80, D10...)"""
     if not plc_comm.connected:
         return JsonResponse({'status': 'failed', 'message': 'Not connected'})
     
@@ -203,28 +202,6 @@ def api_plc_write_params(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
             
     return JsonResponse({'status': 'failed'})
-
-@login_required(login_url="/authentication/login")
-def api_product_stats(request):
-    now = timezone.now()
-    start_time = now - timedelta(hours=10)
-
-    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
-    
-    total_errors = Machine_Logs.objects.filter(error_condition).count()
-    total_pass = Machine_Logs.objects.exclude(error_condition).count()
-    total_all = total_pass + total_errors
-
-    errors_10h = Machine_Logs.objects.filter(created__gte=start_time).filter(error_condition).count()
-    
-    return JsonResponse({
-        'total': total_all,
-        'errors': total_errors,
-        'pass': total_pass,
-        'period_label': '10h gần nhất',
-        'period_errors': errors_10h,
-    })
-
 
 
 @login_required(login_url="/authentication/login")
