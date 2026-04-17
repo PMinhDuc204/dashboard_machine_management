@@ -26,12 +26,13 @@ def home(request):
     return render(request, "home.html", context)
 
 @login_required(login_url="/authentication/login")
-def machine_detail(request):
-    return render(request, "machine_detail.html")
+def list_pcb(request):
+    logs = Machine_Logs.objects.all().order_by('-created')[:100]
+    return render(request, "list_pcb.html", {"logs": logs})
 
 @login_required(login_url="/authentication/login")
 def plc_control(request):
-    return render(request, "plc_control.html")
+    return render(request, "control_plc.html")
 
 def custom_404(request, exception):
     return render(request, 'page_404.html', status=404)

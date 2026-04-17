@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Register - Dashboard SCADA</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+
+    <!-- Fonts and icons -->
+    <script src="{% static 'js/plugin/webfont/webfont.min.js' %}"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
+          urls: ["{% static 'css/fonts.min.css' %}"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/kaiadmin.min.css' %}" />
+    <style>
+        body {
+            background-color: #1a2035;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            background-image: linear-gradient(135deg, #1a2035 0%, #2a2f5b 100%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #ffffff;
+            animation: fadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-card .card-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #1a2035;
+        }
+        .login-card .card-subtitle {
+            text-align: center;
+            color: #8d9498;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .btn-login {
+            background: #1572e8;
+            border-color: #1572e8;
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            background: #115bc2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(21, 114, 232, 0.4);
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ebedf2;
+        }
+        .form-control:focus {
+            border-color: #1572e8;
+            box-shadow: 0 0 0 0.2rem rgba(21, 114, 232, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h3 class="card-title">Tạo Tài Khoản Mới</h3>
+        <p class="card-subtitle">Đăng ký để quản lý hệ thống SCADA</p>
+        
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group mb-3 px-0">
+                <label for="username" class="mb-2 fw-bold text-dark">Tên đăng nhập</label>
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                        <i class="fa fa-user"></i>
+                    </span>
+                    <input id="username" name="username" type="text" class="form-control" value="{{ fieldValues.username }}" placeholder="Nhập tên đăng nhập" required>
+                </div>
+            </div>
+            
+            <div class="form-group mb-3 px-0">
+                <label for="email" class="mb-2 fw-bold text-dark">Email</label>
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                        <i class="fa fa-envelope"></i>
+                    </span>
+                    <input id="email" name="email" type="email" class="form-control" value="{{ fieldValues.email }}" placeholder="Nhập email" required>
+                </div>
+            </div>
+
+            <div class="form-group mb-4 px-0">
+                <label for="password" class="mb-2 fw-bold text-dark">Mật khẩu</label>
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                        <i class="fa fa-lock"></i>
+                    </span>
+                    <input id="password" name="password" type="password" class="form-control" placeholder="Tạo mật khẩu (Ít nhất 6 ký tự)" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 btn-login">ĐĂNG KÝ</button>
+            
+            <div class="text-center mt-4">
+                <span class="text-muted">Đã có tài khoản? </span>
+                <a href="{% url 'login' %}" class="fw-bold text-primary">Đăng nhập ngay</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Core JS Files -->
+    <script src="{% static 'js/core/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'js/core/popper.min.js' %}"></script>
+    <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
+</body>
+</html>
