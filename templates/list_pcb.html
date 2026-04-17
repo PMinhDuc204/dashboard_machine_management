@@ -10,7 +10,7 @@
     />
     <link
       rel="icon"
-      href="../assets/img/kaiadmin/favicon.ico"
+      href="{% static 'img/kaiadmin/favicon.ico' %}"
       type="image/x-icon"
     />
 
@@ -26,7 +26,7 @@
             "Font Awesome 5 Brands",
             "simple-line-icons",
           ],
-          urls: ["../assets/css/fonts.min.css"],
+          urls: ["{% static 'css/fonts.min.css' %}"],
         },
         active: function () {
           sessionStorage.fonts = true;
@@ -49,7 +49,7 @@
         <div class="sidebar-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="dark">
-            <a href="../index.html" class="logo">
+            <a href="{% url 'home' %}" class="logo">
               <img
                 src="{% static 'img/kaiadmin/logo_light.svg' %}"
                 alt="navbar brand"

@@ -10,7 +10,7 @@
     />
     <link
       rel="icon"
-      href="assets/img/kaiadmin/favicon.ico"
+      href="{% static 'img/kaiadmin/favicon.ico' %}"
       type="image/x-icon"
     />
 
@@ -26,7 +26,7 @@
             "Font Awesome 5 Brands",
             "simple-line-icons",
           ],
-          urls: ["assets/css/fonts.min.css"],
+          urls: ["{% static 'css/fonts.min.css' %}"],
         },
         active: function () {
           sessionStorage.fonts = true;
