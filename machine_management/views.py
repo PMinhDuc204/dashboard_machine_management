@@ -19,9 +19,19 @@ import plc_comm_api as plc_comm
 
 @login_required(login_url="/authentication/login")
 def home(request):
-    max_id = Machine_Logs.objects.aggregate(max_id=Max('id'))['max_id']
+    # Lấy tổng số lượng bản ghi (đại diện cho tổng số lượng PLC đã chạy)
+    total_plc = Machine_Logs.objects.count()
+    
+    # Điều kiện lỗi (dựa trên các trường -1)
+    error_condition = Q(caminput=-1) | Q(grayfilter=-1) | Q(shape01=-1) | Q(pos01=-1) | Q(label01=-1) | Q(switch01=-1) | Q(pos02=-1) | Q(switch02=-1) | Q(resultdisplay=-1) | Q(shape02=-1)
+    
+    total_ng = Machine_Logs.objects.filter(error_condition).count()
+    total_ok = total_plc - total_ng
+
     context = {
-        'max_id': max_id
+        'total_plc': total_plc,
+        'total_ok': total_ok,
+        'total_ng': total_ng,
     }
     return render(request, "home.html", context)
 
