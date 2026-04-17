@@ -26,7 +26,7 @@
             "Font Awesome 5 Brands",
             "simple-line-icons",
           ],
-          urls: ["../assets/css/fonts.min.css"],
+          urls: ["{% static 'css/fonts.min.css' %}"],
         },
         active: function () {
           sessionStorage.fonts = true;
@@ -725,27 +725,30 @@
           <h4 class="card-title">Kết Nối PLC</h4>
         </div>
         <div class="card-body">
-          <form id="plcConnectForm" class="row gx-3 gy-2 align-items-center">
-            <div class="col-sm-3">
-              <label class="visually-hidden" for="plcIP">IP Address</label>
-              <input type="text" class="form-control" id="plcIP" placeholder="192.168.3.250" value="192.168.3.250">
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="toggleConnect()">KẾT NỐI PLC</button>
+                <span id="plc_connection_dot" class="badge badge-danger">Chưa kết nối PLC</span>
+                <span id="status_note" class="text-muted mb-0">Hệ thống đang chờ kết nối...</span>
             </div>
-            <div class="col-sm-3">
-              <label class="visually-hidden" for="plcPort">Port</label>
-              <input type="text" class="form-control" id="plcPort" placeholder="4999" value="4999">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary" id="btnConnect">Connect</button>
-              <button type="button" class="btn btn-danger" id="btnDisconnect">Disconnect</button>
-            </div>
-            <div class="col-auto">
-              <span id="connStatus" class="badge badge-secondary">Disconnected</span>
-            </div>
-          </form>
         </div>
       </div>
     </div>
     
+    <!-- Power Button & Status -->
+    <div class="col-md-12" id="x200-power-card">
+        <div class="card">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div id="led-x200" class="rounded-circle bg-danger mr-2 shadow-sm" style="width: 20px; height: 20px;"></div>
+                    <span id="x200-status-text" class="font-weight-bold ml-2">CHƯA BẬT (OFF)</span>
+                </div>
+                <button id="btn-x200-power" class="btn btn-success btn-lg shadow" onclick="onPowerSystem()">
+                    <i class="fas fa-power-off"></i> BẬT HỆ THỐNG (X200)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mode Buttons -->
     <div class="col-md-12">
       <div class="card">
@@ -754,14 +757,15 @@
         </div>
         <div class="card-body">
           <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-success fw-bold" onclick="plcCmd('X15', 1, true, 500)">START</button>
-            <button class="btn btn-danger fw-bold" onclick="plcCmd('X14', 1, true, 500)">STOP</button>
-            <button class="btn btn-success fw-bold" id="btnPower" onclick="togglePower()">POWER</button>
-            <button class="btn btn-secondary fw-bold" onmousedown="plcMomentary('X111', 1)" onmouseup="plcMomentary('X111', 0)" onmouseleave="plcMomentary('X111', 0)">ORIGIN</button>
-            <button class="btn btn-secondary fw-bold" onmousedown="plcMomentary('X112', 1)" onmouseup="plcMomentary('X112', 0)" onmouseleave="plcMomentary('X112', 0)">RUN 1 STEP</button>
-            <button class="btn btn-warning fw-bold" onclick="plcCmd('X304', 1)">EMPTY</button>
-            <button class="btn btn-secondary fw-bold" onmousedown="plcMomentary('X300', 1)" onmouseup="plcMomentary('X300', 0)" onmouseleave="plcMomentary('X300', 0)">AUTO</button>
-            <button class="btn btn-secondary fw-bold" onmousedown="plcMomentary('X306', 1)" onmouseup="plcMomentary('X306', 0)" onmouseleave="plcMomentary('X306', 0)">DISCHARGE</button>
+            <button class="btn btn-success fw-bold" onclick="pulseCommand('X15', 500)">START</button>
+            <button class="btn btn-danger fw-bold" onclick="pulseCommand('X14', 500)">STOP</button>
+            <button class="btn btn-secondary fw-bold" onmousedown="controlMomentary('X111', 1, event)" onmouseup="controlMomentary('X111', 0, event)" onmouseleave="controlMomentary('X111', 0, event)" ontouchstart="controlMomentary('X111', 1, event)" ontouchend="controlMomentary('X111', 0, event)">ORIGIN</button>
+            <button class="btn btn-secondary fw-bold" onmousedown="controlMomentary('X112', 1, event)" onmouseup="controlMomentary('X112', 0, event)" onmouseleave="controlMomentary('X112', 0, event)" ontouchstart="controlMomentary('X112', 1, event)" ontouchend="controlMomentary('X112', 0, event)">RUN 1 STEP</button>
+            <button class="btn btn-warning fw-bold" onclick="sendPlcCommand('X304')">EMPTY</button>
+            <button class="btn btn-secondary fw-bold" onmousedown="controlMomentary('X300', 1, event)" onmouseup="controlMomentary('X300', 0, event)" onmouseleave="controlMomentary('X300', 0, event)" ontouchstart="controlMomentary('X300', 1, event)" ontouchend="controlMomentary('X300', 0, event)">AUTO</button>
+            <button class="btn btn-secondary fw-bold" onmousedown="controlMomentary('X306', 1, event)" onmouseup="controlMomentary('X306', 0, event)" onmouseleave="controlMomentary('X306', 0, event)" ontouchstart="controlMomentary('X306', 1, event)" ontouchend="controlMomentary('X306', 0, event)">DISCHARGE</button>
+            <button class="btn btn-dark fw-bold" onclick="pulseLightOff(500)">LIGHT OFF</button>
+            <button class="btn btn-info fw-bold" onclick="controlY1('start')">RESET ALARM</button>
           </div>
         </div>
       </div>
@@ -778,35 +782,47 @@
             <div class="row mb-3">
               <div class="col-md-4">
                 <label>Vận tốc Auto X (D300)</label>
-                <input type="number" class="form-control" id="D300" name="D300">
+                <input type="number" class="form-control" id="input_D300" name="D300">
               </div>
               <div class="col-md-4">
                 <label>Vận tốc Man X (D302)</label>
-                <input type="number" class="form-control" id="D302" name="D302">
+                <input type="number" class="form-control" id="input_D302" name="D302">
               </div>
               <div class="col-md-4">
                 <label>Vị trí hút SP (D304)</label>
-                <input type="number" class="form-control" id="D304" name="D304">
+                <input type="number" class="form-control" id="input_D304" name="D304">
               </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-4">
                 <label>Vị trí Camera (D306)</label>
-                <input type="number" class="form-control" id="D306" name="D306">
+                <input type="number" class="form-control" id="input_D306" name="D306">
               </div>
               <div class="col-md-4">
                 <label>Gia tốc (D500)</label>
-                <input type="number" class="form-control" id="D500" name="D500">
+                <input type="number" class="form-control" id="input_D500" name="D500">
               </div>
               <div class="col-md-4">
                 <label>Giảm tốc (D502)</label>
-                <input type="number" class="form-control" id="D502" name="D502">
+                <input type="number" class="form-control" id="input_D502" name="D502">
               </div>
             </div>
-            <button type="button" class="btn btn-primary" onclick="writeParams()">Cập Nhật</button>
+            <button type="button" class="btn btn-primary" onclick="saveParameters()">Cập Nhật</button>
           </form>
         </div>
       </div>
+    </div>
+
+    <!-- PLC Debug Log -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">PLC Debug Log</h4>
+            </div>
+            <div class="card-body">
+                <div id="plc-debug-log" style="background: #1e1e1e; color: #fff; padding: 10px; height: 300px; overflow-y: scroll; font-family: monospace;"></div>
+            </div>
+        </div>
     </div>
     
   </div>
@@ -1045,96 +1061,8 @@
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{% static 'js/setting-demo2.js' %}"></script>
   
-    <script>
-      let isConnected = false;
-      let powerState = 0;
-
-      // Connect PLC
-      $('#plcConnectForm').submit(function(e) {
-          e.preventDefault();
-          const ip = $('#plcIP').val();
-          const port = $('#plcPort').val();
-          $.post('/api/plc/connect/', JSON.stringify({ip: ip, port: port, action: 'connect'}), function(res) {
-              if (res.status === 'ok') {
-                  $('#connStatus').removeClass('badge-secondary badge-danger').addClass('badge-success').text('Connected');
-                  isConnected = true;
-                  swal("Thành công", "Đã kết nối PLC", "success");
-              } else {
-                  swal("Lỗi", res.message, "error");
-              }
-          });
-      });
-
-      $('#btnDisconnect').click(function() {
-          $.post('/api/plc/connect/', JSON.stringify({action: 'disconnect'}), function(res) {
-              $('#connStatus').removeClass('badge-success').addClass('badge-secondary').text('Disconnected');
-              isConnected = false;
-          });
-      });
-
-      function plcCmd(cmd, val, isPulse=false, pulseMs=200) {
-          if (!isConnected) return swal("Lỗi", "Chưa kết nối PLC", "warning");
-          $.post('/api/plc/command/', JSON.stringify({
-              command: cmd,
-              value: val,
-              pulse: isPulse,
-              pulse_ms: pulseMs
-          }));
-      }
-
-      function plcMomentary(cmd, val) {
-          if (!isConnected) return;
-          $.post('/api/plc/command/', JSON.stringify({
-              command: cmd,
-              value: val,
-              pulse: false
-          }));
-      }
-
-      function togglePower() {
-          powerState = powerState ? 0 : 1;
-          plcCmd('M0', powerState);
-          if (powerState) {
-              $('#btnPower').removeClass('btn-secondary').addClass('btn-success');
-          } else {
-              $('#btnPower').removeClass('btn-success').addClass('btn-secondary');
-          }
-      }
-
-      function writeParams() {
-          if (!isConnected) return swal("Lỗi", "Chưa kết nối PLC", "warning");
-          const data = {
-              D300: $('#D300').val(),
-              D302: $('#D302').val(),
-              D304: $('#D304').val(),
-              D306: $('#D306').val(),
-              D500: $('#D500').val(),
-              D502: $('#D502').val()
-          };
-          $.post('/api/plc/write_params/', JSON.stringify(data), function(res) {
-              if (res.status === 'ok') {
-                  swal("Thành công", "Đã cập nhật tham số", "success");
-              } else {
-                  swal("Lỗi", res.message, "error");
-              }
-          });
-      }
-
-      // Poll status
-      setInterval(function() {
-          if (!isConnected) return;
-          $.get('/api/plc/status/', function(res) {
-              if (res.status === 'ok') {
-                  $('#D300').val(res.params.D300);
-                  $('#D302').val(res.params.D302);
-                  $('#D304').val(res.params.D304);
-                  $('#D306').val(res.params.D306);
-                  $('#D500').val(res.params.D500);
-                  $('#D502').val(res.params.D502);
-              }
-          });
-      }, 2000);
-    </script>
+    <!-- PLC Control JS Interface -->
+    <script src="{% static 'js/plc_control.js' %}"></script>
     
 </body>
 </html>
