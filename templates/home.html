@@ -594,7 +594,7 @@
   </div>
   
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <div class="card">
         <div class="card-header">
           <div class="card-title">Thống Kê 7 Ngày Qua</div>
@@ -606,7 +606,9 @@
         </div>
       </div>
     </div>
-    <div class="col-md-6">
+  </div>
+  <div class="row">
+    <div class="col-md-12">
       <div class="card">
         <div class="card-header">
           <div class="card-title">Thống Kê Theo Tháng</div>
@@ -880,93 +882,7 @@
       });
     </script>
   
-<script>
-  $(document).ready(function() {
-      // Draw Weekly Chart
-      $.get('/api/stats/weekly/', function(res) {
-          var weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-          new Chart(weeklyCtx, {
-              type: 'bar',
-              data: {
-                  labels: res.labels,
-                  datasets: [
-                      {
-                          label: "Tổng (Total)",
-                          backgroundColor: '#1d7af3',
-                          data: res.data_total,
-                      },
-                      {
-                          label: "Đạt (OK)",
-                          backgroundColor: '#28a745',
-                          data: res.data_pass,
-                      },
-                      {
-                          label: "Lỗi (NG)",
-                          backgroundColor: '#dc3545',
-                          data: res.data_fail,
-                      }
-                  ]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-              }
-          });
-          
-          // Tricky: Compute total from the last element for now or sum it up
-          let totalIn = res.data_total.reduce((a, b) => a + b, 0);
-          let totalOk = res.data_pass.reduce((a, b) => a + b, 0);
-          let totalNg = res.data_fail.reduce((a, b) => a + b, 0);
-          
-
-      // Draw Monthly Chart
-      $.get('/api/stats/monthly/', function(res) {
-          var monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-          new Chart(monthlyCtx, {
-              type: 'line',
-              data: {
-                  labels: res.labels,
-                  datasets: [
-                      {
-                          label: "Tổng",
-                          borderColor: '#1d7af3',
-                          pointBackgroundColor: '#1d7af3',
-                          fill: false,
-                          data: res.data_total,
-                      },
-                      {
-                          label: "Đạt",
-                          borderColor: '#28a745',
-                          pointBackgroundColor: '#28a745',
-                          fill: false,
-                          data: res.data_pass,
-                      },
-                      {
-                          label: "Lỗi",
-                          borderColor: '#dc3545',
-                          pointBackgroundColor: '#dc3545',
-                          fill: false,
-                          data: res.data_fail,
-                      }
-                  ]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-              }
-          });
-      });
-      
-      // Real-time loop to poll PLC for Cycle time or other real-time stats
-      setInterval(function() {
-          $.get('/api/plc/status/', function(res) {
-              if (res.status === 'ok') {
-                  $('#stat_cycle_time').text((res.d100 || 0) + ' ms'); // Just an example, maybe D100 is cycle time
-              }
-          });
-      }, 2000);
-  });
-</script>
+<script src="{% static 'js/home.js' %}"></script>
 
 </body>
 </html>
